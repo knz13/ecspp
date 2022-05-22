@@ -4,7 +4,7 @@
 #include "../object/registry.h"
 
 
-
+namespace ecspp {
 
 
 class Component {
@@ -61,6 +61,4 @@ private:
 
 };
 
-
-
-
+};

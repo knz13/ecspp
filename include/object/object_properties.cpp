@@ -1,7 +1,7 @@
 #include "object_properties.h"
-#include "../kv.h"
 
 
+namespace ecspp {
 ObjectHandle::ObjectHandle(entt::entity ent)
 {
 	m_Handle = ent;
@@ -136,4 +136,5 @@ void ObjectProperties::SetComponentsNames(std::vector<std::string> vec)
 }
 
 
+};
 

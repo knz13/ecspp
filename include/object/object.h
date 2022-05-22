@@ -5,11 +5,9 @@
 #include "object_base.h"
 
 
-
+namespace ecspp {
 
 class Component;
-class TransformComponent;
-
 
 class Object : public ObjectBase {
 public:
@@ -208,3 +206,5 @@ private:
     friend class Component;
 };
 
+
+};

@@ -3,6 +3,9 @@
 #include "../components/component_specifier.h"
 #include <filesystem>
 
+
+namespace ecspp {
+
 template<typename DerivedObjectClass>
 class ObjectTag {
 
@@ -92,3 +95,4 @@ private:
 };
 
 
+};

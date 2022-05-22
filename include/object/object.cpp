@@ -1,5 +1,8 @@
 #include "object.h"
 
+
+namespace ecspp {
+
 Object::~Object() {
   
 }
@@ -87,3 +90,5 @@ void Object::ForEachChild(std::function<void(Object&)> func) {
         }
     }
 }
+
+};

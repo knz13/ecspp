@@ -4,6 +4,8 @@
 
 #include <random>
 
+namespace ecspp {
+
 namespace ComponentHelpers {
     class Null {
 
@@ -78,5 +80,7 @@ public:
 private:
     entt::entity m_Handle = entt::null;
     bool isNull = false;
+
+};
 
 };

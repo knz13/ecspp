@@ -1,6 +1,7 @@
 #include "object_property_register.h"
-#include "../kv.h"
 
+
+namespace ecspp {
 
 ObjectHandle ObjectPropertyRegister::CreateObjectFromType(std::string type, std::string objectName)
 {
@@ -431,3 +432,5 @@ void ObjectPropertyRegister::GetAllChildren(ObjectHandle current, std::vector<Ob
 		}
 	}
 }
+
+};

@@ -6,7 +6,7 @@
 
 
 
-
+namespace ecspp {
 
 class ObjectProperties {
 public:
@@ -48,3 +48,4 @@ private:
 	friend class Registry;
 };
 
+};

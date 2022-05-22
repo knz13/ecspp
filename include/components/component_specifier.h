@@ -1,6 +1,8 @@
 #pragma once
 #include "component.h"
 
+namespace ecspp {
+
 template<typename ComponentName,typename ObjectType>
 class ComponentSpecifier : public Component {
 protected:
@@ -17,5 +19,7 @@ private:
 		return false;
 	}();
 
+
+};
 
 };

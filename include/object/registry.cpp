@@ -1,10 +1,10 @@
 #include "registry.h"
 #include "object.h"
 #include "object_properties.h"
-#include "../kv.h"
 #include <ctime>
 
 
+namespace ecspp {
 
 entt::registry Registry::m_Registry;
 std::mt19937 Registry::m_RandomGenerator(time(nullptr));
@@ -71,3 +71,5 @@ ObjectHandle Registry::FindObjectByName(std::string name) {
 }
 
 
+
+};

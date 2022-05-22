@@ -5,6 +5,8 @@
 
 // dummy class to make the functions available to the register;
 
+namespace escpp {
+
 class ObjectBase {
 
 protected:
@@ -14,4 +16,5 @@ protected:
 	friend class ObjectPropertyRegister;
 
 
+};
 };
