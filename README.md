@@ -13,10 +13,12 @@ I tried to make the build steps as simple as possible.
 You'll need to have:
 1. CMake in your machine which can be downloaded with this [link](https://cmake.org/download/)
 
-That'it!
+That's it!
 
 Just add it to your project like this...
 ```
+  include(FetchContent)
+  
   FetchContent_Declare(ECSPP
   GIT_REPOSITORY https://github.com/knz13/ecspp
   GIT_TAG origin/main
@@ -60,7 +62,7 @@ Ok, so far we can see that the TaggedObject class takes three template parameter
 
 But you may be questioning yourself, what are those other two template parameters?
 
-For that i'll need to introduce the second most important class...
+For that I'll need to introduce the second most important class...
 
 ## The templated ComponentSpecifier class
 
@@ -200,7 +202,7 @@ And change it however you like!
 
 Our object also has some very useful methods such as...
 
-###Getting, adding, erasing, copying and cheching if it has the component by name!
+### Getting, adding, erasing, copying and cheching if it has the component by name!
 ```
   .
   . 
