@@ -46,6 +46,8 @@ Alright, first we'll create the GameObject class. (I'm using the [glm](https://g
 #pragma once
 #include "ecspp.h" //including the library
 
+using namespace ecspp;
+
 class GameObject : public TaggedObject<GameObject,GameComponent<>,GameObjectProperties> {
 public:
   GameObject(entt::entity e);
@@ -133,6 +135,8 @@ Lets introduce a Transform class which will have the position, rotation and scal
 #pragma once
 #include "ecspp.h" //including the library
 
+using namespace ecspp;
+
 class Transform : public GameComponent<Transform> {
 public:
   glm::vec3 position;
@@ -155,6 +159,8 @@ Both of these classes work the same as the ones we've seen already, just pass th
 #pragma once
 #include "ecspp.h" //including the library
 #include "game_object.h" // adding our GameObject file
+
+using namespace ecspp;
 
 class Transform : public GameComponent<Transform>,public AddOnlyTo<GameObject> {
 public:
