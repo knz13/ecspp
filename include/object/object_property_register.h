@@ -5,7 +5,7 @@
 #include <concepts>
 #include "../components/component.h"
 #include "registry.h"
-#include "../general/helpers.h"
+#include "../helpers/helpers.h"
 #include "../../vendor/entt/single_include/entt/entt.hpp"
 #include "object_properties.h"
 #include "object_base.h"

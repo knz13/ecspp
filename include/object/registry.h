@@ -1,5 +1,5 @@
 #pragma once
-#include "../general/helpers.h"
+#include "../helpers/helpers.h"
 #include "../vendor/entt/single_include/entt/entt.hpp"
 
 #include <random>
