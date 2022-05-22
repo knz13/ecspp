@@ -127,9 +127,35 @@ private:
     };
 
     template<typename>
-    friend class HelperClasses::Meta;
+    friend class Meta;
     
     
+};
+
+template<typename T>
+class Meta {
+public:
+
+    template<auto Func>
+    bool RegisterFunc(std::string funcMetaName) {
+        entt::meta<T>().type(hash).template func<Func>(entt::hashed_string(funcMetaName.c_str()));
+        return true;
+    };
+
+    template<typename Base,auto Func> 
+    bool RegisterVirtualMemberFunc(std::string funcMetaName) {
+        entt::meta<T>().type(hash).template func<&HelperFunctions::CallFunctionForObjectWithVirtualBase<Base,T, Func>>(entt::hashed_string(funcMetaName.c_str()));
+        return true;
+    }
+
+    template<auto Func>
+    bool RegisterMemberFunc(std::string funcMetaName) {
+        entt::meta<T>().type(hash).template func<&HelperFunctions::CallFunctionForObject<T, Func>>(entt::hashed_string(funcMetaName.c_str()));
+        return true;
+    }
+private:
+    entt::id_type hash = HelperFunctions::HashClassName<T>();
+
 };
 
 class HelperClasses {
@@ -139,31 +165,6 @@ public:
         int dummy = 0;
     };
 
-    template<typename T>
-    class Meta {
-    public:
-
-        template<auto Func>
-        bool RegisterFunc(std::string funcMetaName) {
-            entt::meta<T>().type(hash).template func<Func>(entt::hashed_string(funcMetaName.c_str()));
-            return true;
-        };
-
-        template<typename Base,auto Func> 
-        bool RegisterVirtualMemberFunc(std::string funcMetaName) {
-            entt::meta<T>().type(hash).template func<&HelperFunctions::CallFunctionForObjectWithVirtualBase<Base,T, Func>>(entt::hashed_string(funcMetaName.c_str()));
-            return true;
-        }
-
-        template<auto Func>
-        bool RegisterMemberFunc(std::string funcMetaName) {
-            entt::meta<T>().type(hash).template func<&HelperFunctions::CallFunctionForObject<T, Func>>(entt::hashed_string(funcMetaName.c_str()));
-            return true;
-        }
-    private:
-        entt::id_type hash = HelperFunctions::HashClassName<T>();
-
-    };
 
 
 
