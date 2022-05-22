@@ -55,10 +55,10 @@ void Object::AddChildren(Object object) {
     return Properties().AddChildren(object);
 }
 
-void Object::ForEachComponent(std::function<void(Component&)> func) {
-    for(auto& comp : GetComponentsNames()){
-        Component& comp = ObjectPropertyRegister::GetComponentByName<Component>(this->ID(), stringToHash);
-        if(comp.Valid()){
+void Object::ForEachComponent(std::function<void(NamedComponentHandle<Component>&)> func) {
+    for(auto& componentName : GetComponentsNames()){
+        NamedComponentHandle<Component> comp = ObjectPropertyRegister::GetComponentByName<Component>(this->ID(), componentName);
+        if(comp){
             func(comp);
         }
     }

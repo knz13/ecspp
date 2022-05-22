@@ -17,15 +17,29 @@ template<typename T>
 struct NamedComponentHandle {
 public:
 
+	NamedComponentHandle() {
+
+	};
+
 	NamedComponentHandle(T* comp)
 	{
 		m_Component = comp;
 	};
 
+
 	
 	T* GetComponentPointer() {
 		return m_Component;
 	}
+
+	T& Get() {
+		return *m_Component;
+	};
+
+	template<typename Type>
+	Type& GetAs() {
+		return *T
+	};
 
 	operator bool() {
 		return m_Component != nullptr;
@@ -307,9 +321,9 @@ protected:
 	
 
 	template<typename ReturnType>
-	static ReturnType* AddComponentByName(entt::entity e,std::string stringToHash) {
+	static NamedComponentHandle<ReturnType> AddComponentByName(entt::entity e,std::string stringToHash) {
 		if (!Registry::Get().valid(e)) {
-			return nullptr;
+			return {};
 		}
 
 		auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
@@ -324,7 +338,7 @@ protected:
 			}
 
 		}
-		return returnData;
+		return {returnData};
 		
 	};
 

@@ -74,7 +74,13 @@ public:
     }
 
   
+    NamedComponentHandle<Component> AddComponentByName(std::string stringToHash) {
+		return {ObjectPropertyRegister::AddComponentByName<Component>(this->ID(), stringToHash)};
+	};
 
+	NamedComponentHandle<Component> GetComponentByName(std::string stringToHash) {
+		return {ObjectPropertyRegister::GetComponentByName<Component>(this->ID(), stringToHash)};
+	};
 
 
 
@@ -107,29 +113,6 @@ public:
             return false;
         }
     }
-
-    template<typename T>
-    void EnableComponent() {
-        if(!this->Valid()){
-            return;
-        }
-
-        if(this->HasComponent<T>()){
-            this->GetComponent<T>().SetActiveState(true);
-        }
-    }
-
-    template<typename T>
-    void DisableComponent() {
-        if(!this->Valid()){
-            return;
-        }
-
-        if(this->HasComponent<T>()){
-            this->GetComponent<T>().SetActiveState(false);
-        }
-
-    };
 
     bool Valid(){
         return Registry::Get().valid(m_EntityHandle);
@@ -166,7 +149,7 @@ public:
     ObjectHandle GetParent();
     const std::vector<ObjectHandle>& GetChildren() const;
     const std::vector< std::string>& GetComponentsNames() const;
-    void ForEachComponent(std::function<void(Component&)> func);
+    void ForEachComponent(std::function<void(NamedComponentHandle<Component>&)> func);
     void ForEachChild(std::function<void(Object&)> func);
     
 

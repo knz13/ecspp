@@ -63,15 +63,15 @@ public:
 	}
 
 
-	static const std::vector<std::string>& GetRegisteredComponents() {
+	static const std::vector<std::string>& GetRegisteredComponentsForType() {
 		return ObjectPropertyRegister::m_RegisteredComponentsByType[HelperFunctions::HashClassName<Derived>()];
 	};
 
-	DerivedComponent* AddComponentByName(std::string stringToHash) {
+	NamedComponentHandle<DerivedComponent> AddComponentByName(std::string stringToHash) {
 		return ObjectPropertyRegister::AddComponentByName<DerivedComponent>(this->ID(), stringToHash);
 	};
 
-	DerivedComponent* GetComponentByName(std::string stringToHash) {
+	NamedComponentHandle<DerivedComponent> GetComponentByName(std::string stringToHash) {
 		return ObjectPropertyRegister::GetComponentByName<DerivedComponent>(this->ID(), stringToHash);
 	};
 	

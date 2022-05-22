@@ -5,6 +5,12 @@ namespace ecspp {
 
 template<typename ComponentName,typename ObjectType>
 class ComponentSpecifier : public Component {
+public:
+	std::string GetName() {
+		return HelperFunctions::GetClassName<ComponentName>();
+	}
+
+
 protected:
 
 	TemplatedObjectHandle<ObjectType> GetMasterObject() const {
