@@ -3,13 +3,10 @@
 
 
 
-namespace HelperClasses {
-    template<typename>
-    class Meta;
-};
 
 
 
+namespace ecspp {    
 
 class HelperFunctions {
 public:
@@ -135,7 +132,8 @@ private:
     
 };
 
-namespace HelperClasses {
+class HelperClasses {
+public:
     class Null {
     private:
         int dummy = 0;
@@ -329,3 +327,4 @@ namespace HelperClasses {
 
 }
 
+};
