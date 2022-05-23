@@ -83,7 +83,6 @@ public:
 		entt::id_type hash = HelperFunctions::HashClassName<Attached>();
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag,Attached>>(entt::hashed_string("ForEach"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
-		entt::meta<Attached>().type(hash).template func<&ObjectBase::CallShowPropertiesForObject<Attached>>(entt::hashed_string("Show Properties"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDestroyForObject<Attached>>(entt::hashed_string("Destroy"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
