@@ -178,11 +178,13 @@ public:
         };
 
         template<typename T>
-        requires std::is_base_of<Derived, T>::value
+        
         T& HoldType() {
             auto deleter = [](Derived* ptr) {
                 delete ((T*)ptr);
             };
+
+            static_assert(std::is_base_of<Derived, T>::value);
             m_CurrentType = HelperFunctions::GetClassName<T>();
             m_Pointer = std::shared_ptr<Derived>(new T(), deleter);
             return *((T*)std::get< std::shared_ptr<Derived>>(m_Pointer).get());
