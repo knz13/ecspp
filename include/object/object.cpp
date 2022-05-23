@@ -33,6 +33,18 @@ Object::Object(entt::entity ent) {
     m_EntityHandle = ent;
 }
 
+
+void Object::SetEntity(entt::entity e) {
+    if(!Registry::Get().valid(e)){
+        DEBUG_ERROR("Passing an invalid entity!!!");
+    }   
+    m_EntityHandle = e;
+}
+
+Object::Object() {
+    
+}
+
 bool Object::HasSameObjectTypeAs(Object other)
 {
     return Properties().m_MasterType == other.Properties().m_MasterType;
@@ -90,5 +102,7 @@ void Object::ForEachChild(std::function<void(Object&)> func) {
         }
     }
 }
+
+
 
 };

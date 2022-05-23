@@ -165,8 +165,12 @@ public:
    
     std::string GetName();
 
+
+    
+
 protected:
    
+    Object();
 
 
 
@@ -177,7 +181,7 @@ private:
         return Registry::Get().get<ObjectProperties>(m_EntityHandle);
     };
 
-    
+    void SetEntity(entt::entity e);
     
 
     entt::entity m_EntityHandle;

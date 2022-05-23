@@ -35,30 +35,25 @@ include(FetchContent)
 
 
 #project name
-project("ecspp_project")
-
-#adding subdirectories...
-
-add_subdirectory(test)
-
+project("ecspp_test_project")
 
 # --------------------- Repository declarations ------------------------
 
 
-#repository download and settings for alias entt...
+#repository download and settings for alias gtest...
 
 
-	FetchContent_Declare(entt_project
+	FetchContent_Declare(gtest_project
 
-		GIT_REPOSITORY https://github.com/skypjack/entt
+		GIT_REPOSITORY https://github.com/google/googletest
 
-		GIT_TAG origin/master
+		GIT_TAG release-1.11.0
 
-		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/entt
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/gtest
 
 	)
 
-	list(APPEND ${PROJECT_NAME}_DEPENDENCIES entt_project)
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES gtest_project)
 
 
 	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
@@ -72,24 +67,27 @@ add_subdirectory(test)
 
 	endforeach() 
 
-#creating library
-add_library(ecspp STATIC
+#creating executable
+add_executable(ecspp_test
 
-	${PROJECT_SOURCE_DIR}/include/object/object.cpp
 
-	${PROJECT_SOURCE_DIR}/include/object/object_properties.cpp
-
-	${PROJECT_SOURCE_DIR}/include/object/object_property_register.cpp
-
-	${PROJECT_SOURCE_DIR}/include/object/registry.cpp
+	${PROJECT_SOURCE_DIR}/test.cpp
 
 )
 
-set_property(TARGET ecspp PROPERTY CXX_STANDARD 17)
+set_property(TARGET ecspp_test PROPERTY CXX_STANDARD 20)
 
+
+#adding libraries...
+
+target_link_libraries(ecspp_test PUBLIC ecspp)
+
+target_link_libraries(ecspp_test PUBLIC gtest)
 
 
 #adding includes...
 
 
-target_include_directories(ecspp PUBLIC ${PROJECT_SOURCE_DIR}/vendor/entt/single_include)
+target_include_directories(ecspp_test PUBLIC ${PROJECT_SOURCE_DIR}/../include)
+
+target_include_directories(ecspp_test PUBLIC ${PROJECT_SOURCE_DIR}/vendor/gtest/googletest/include)

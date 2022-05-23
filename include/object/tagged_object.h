@@ -18,9 +18,11 @@ private:
 template<typename Derived,typename DerivedComponent,typename DerivedStorage>
 class TaggedObject : public Object {
 public:
-	TaggedObject(entt::entity e) : Object(e) {
+	TaggedObject() {
 		(void)dummyVariable;
 	};
+
+
 
 	static void ForEach(std::function<void(Derived)> function) {
 		auto resolved = entt::resolve(HelperFunctions::HashClassName<Derived>());
@@ -32,6 +34,10 @@ public:
 		}
 	
 	}
+
+	static bool DeleteObject(Derived derived) {
+		return ObjectPropertyRegister::DeleteObject({derived});
+	};
 
 	template<typename... Args>
 	static Derived CreateNew(std::string name,Args&&... args) {

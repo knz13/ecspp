@@ -112,6 +112,8 @@ public:
 
 		T obj(ent,args...);
 
+		obj.SetEntity(ent);
+
 		((ObjectBase*)(&obj))->Init();
 
 		if (m_ComponentsToMakeAvailableAtStartByType.find(hash) != m_ComponentsToMakeAvailableAtStartByType.end()) {
@@ -153,7 +155,7 @@ public:
 		static_assert(std::is_base_of<Object, T>::value);
 
 		entt::entity ent = Registry::Get().create();
-
+		
 		int index = 1;
 		if (Registry::FindObjectByName(name)) {
 			if (name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)) {
