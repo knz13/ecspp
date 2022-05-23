@@ -14,28 +14,6 @@ entt::registry& Registry::Get() {
 
 
 
-std::string Registry::GetComponentDisplayName(std::string componentClassName)
-{
-    auto resolved = entt::resolve(entt::hashed_string(componentClassName.c_str()));
-
-    if (resolved) {
-        if (auto func = resolved.func(entt::hashed_string("Get Display Name")); func) {
-
-            if (auto result = func.invoke({}); result) {
-                return result.cast<std::string>();
-            }
-            else {
-                return "";
-            }
-        }
-        else {
-            return "";
-        }
-    }
-    else {
-        return "";
-    }
-}
 
 
 

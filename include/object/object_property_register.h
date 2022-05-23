@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <concepts>
 #include "../components/component.h"
 #include "registry.h"
 #include "../helpers/helpers.h"
@@ -11,7 +10,7 @@
 #include "object_base.h"
 
 
-
+namespace ecspp {
 
 template<typename T>
 struct NamedComponentHandle {
@@ -84,10 +83,7 @@ public:
 		entt::id_type hash = HelperFunctions::HashClassName<Attached>();
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag,Attached>>(entt::hashed_string("ForEach"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
-		entt::meta<Attached>().type(hash).template func<&HelperFunctions::GetClassDisplayName<Attached>>(entt::hashed_string("Get Display Name"));
 		entt::meta<Attached>().type(hash).template func<&ObjectBase::CallShowPropertiesForObject<Attached>>(entt::hashed_string("Show Properties"));
-		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallSerializeForClass<Attached>>(entt::hashed_string("Serialize"));
-		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDeserializeForClass<Attached>>(entt::hashed_string("Deserialize"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDestroyForObject<Attached>>(entt::hashed_string("Destroy"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
@@ -151,7 +147,7 @@ public:
 	};
 
 	
-	static void ClearEntities();
+	
 
 	template<typename T,typename... Args>
 	static T CreateNew(std::string name,Args&&... args) {
@@ -343,8 +339,8 @@ protected:
 	};
 
 	template<typename ReturnType>
-	static ReturnType* GetComponentByName(entt::entity e,std::string name) {
-		ReturnType* comp = nullptr;
+	static NamedComponentHandle<ReturnType> GetComponentByName(entt::entity e,std::string name) {
+		NamedComponentHandle<ReturnType> comp;
 		
 		try {
 			comp = AddComponentByName<ReturnType>(e, name);
@@ -408,67 +404,12 @@ private:
 	static void ValidateAllGameObjects();
 	
 
-	static ObjectHandle DeserializeObject(std::string objectType,YAML::Node& node);
-	static bool SerializeObject(ObjectHandle obj, YAML::Node& node);
+	
 
-	template<typename T>
-	static bool CallDeserializeForComponent(entt::entity e,YAML::Node* node) {
-		if (!ObjectHandle(e)) {
-			return false;
-		}
-		if (!node) {
-			return false;
-		}
-
-		T* comp = ObjectPropertyRegister::GetComponentByName<T>(e, HelperFunctions::GetClassName<T>());
-
-		if (!comp) {
-			return false;
-		}
-
-		return ((Component*)(comp))->Deserialize(*node);
-
-	};
-
-	template<typename T>
-	static YAML::Node CallSerializeForComponent(entt::entity e) {
-		if (!ObjectHandle(e)) {
-			return {};
-		}
-		
-		T* comp = ObjectPropertyRegister::GetComponentByName<T>(e, HelperFunctions::GetClassName<T>());
-
-		if (!comp) {
-			return {};
-		}
-
-		return ((Component*)(comp))->Serialize();
+	
 
 
-		
-
-	};
-
-
-	template<typename T>
-	static bool CallDeserializeForClass(entt::entity e,YAML::Node* node) {
-		T obj(e);
-
-		if (!node) {
-			return false;
-		}
-
-		return ((ObjectBase*)(&obj))->Deserialize(*node);
-	}
-
-	template<typename T>
-	static YAML::Node CallSerializeForClass(entt::entity e) {
-		T obj(e);
-
-		return ((ObjectBase*)(&obj))->Serialize();
-		
-
-	}
+	
 	
 	static void GetAllChildren(ObjectHandle current, std::vector<ObjectHandle>& vec);
 	
@@ -486,9 +427,7 @@ private:
 		entt::meta<T>().type(hash).template func<&CopyComponent<T>>(entt::hashed_string("Copy Component"));
 		entt::meta<T>().type(hash).template func<&EraseComponent<T>>(entt::hashed_string("Erase Component"));
 		entt::meta<T>().type(hash).template func<&HasComponent<T>>(entt::hashed_string("Has Component"));
-		entt::meta<T>().type(hash).template func<&HelperFunctions::GetClassDisplayName<T>>(entt::hashed_string("Get Display Name"));
-		entt::meta<T>().type(hash).template func<&ObjectPropertyRegister::CallSerializeForComponent<T>>(entt::hashed_string("Serialize"));
-		entt::meta<T>().type(hash).template func<&ObjectPropertyRegister::CallDeserializeForComponent<T>>(entt::hashed_string("Deserialize"));
+		
 		
 
 		return hash;
@@ -570,4 +509,6 @@ public:
 private:
 	entt::entity m_Handle = entt::null;
 	bool isNull = false;
+};
+
 };

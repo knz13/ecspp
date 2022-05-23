@@ -77,7 +77,7 @@ ObjectHandle Object::GetParent() {
 }
 
 bool Object::IsInChildren(Object object) {
-    return Properties().IsInChildren();
+    return Properties().IsInChildren(object);
 }
 
 void Object::ForEachChild(std::function<void(Object&)> func) {

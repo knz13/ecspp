@@ -1,5 +1,6 @@
 #include "object_properties.h"
-
+#include "object.h"
+#include "../global.h"
 
 namespace ecspp {
 ObjectHandle::ObjectHandle(entt::entity ent)
@@ -35,7 +36,7 @@ std::string ObjectHandle::ToString() const
 
 bool ObjectHandle::IsType(entt::id_type type) const
 {
-	return type == GetAsObject().GetTypeOfObject();
+	return GetAsObject().IsOfType(type);
 }
 
 bool ObjectHandle::operator==(const ObjectHandle& other) const
@@ -73,14 +74,14 @@ void ObjectProperties::SetParent(Object e)
 {
 	if (e.HasSameObjectTypeAs(m_Master.GetAsObject())) {
 		this->m_Parent = ObjectHandle(e.ID());
-		e.Properties().AddChildren(m_Master.GetAsObject());
+		e.AddChildren(m_Master.GetAsObject());
 	}
 }
 
 void ObjectProperties::ClearParent()
 {
 	if (m_Parent) {
-		m_Parent.GetAsObject().Properties().RemoveChildren(m_Master.GetAsObject());
+		m_Parent.GetAsObject().RemoveChildren(m_Master.GetAsObject());
 	}
 	this->m_Parent = ObjectHandle();
 }
@@ -96,7 +97,7 @@ bool ObjectProperties::IsInChildren(Object obj)
 		return true;
 	}
 	for (auto& id : m_Children) {
-		if (id.GetAsObject().Properties().IsInChildren(obj)) {
+		if (id.GetAsObject().IsInChildren(obj)) {
 			return true;
 		}
 	}

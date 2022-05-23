@@ -141,6 +141,14 @@ public:
     bool IsOfType() {
         return HelperFunctions::GetClassName<T>() == GetType();
     };
+
+    bool IsOfType(entt::id_type type) {
+        return type == Properties().m_MasterType;
+    };
+
+    entt::id_type GetTypeID() {
+        return Properties().m_MasterType;
+    };
     
     void SetParent(Object object);
     void RemoveChildren(Object object);
@@ -165,7 +173,7 @@ protected:
     
     
 private:
-    ObjectProperties& Properties() {
+    ObjectProperties& Properties() const{
         return Registry::Get().get<ObjectProperties>(m_EntityHandle);
     };
 

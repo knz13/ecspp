@@ -5,7 +5,7 @@
 
 // dummy class to make the functions available to the register;
 
-namespace escpp {
+namespace ecspp {
 
 class ObjectBase {
 

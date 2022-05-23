@@ -32,7 +32,8 @@
 *.app
 
 
-build/*
-vendor/*
-.vscode/*
-.vs/*
+build*
+vendor*
+.vscode*
+.vs*
+out*

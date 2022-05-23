@@ -1,6 +1,6 @@
 #pragma once
 #include "../helpers/helpers.h"
-#include "../vendor/entt/single_include/entt/entt.hpp"
+#include "../../vendor/entt/single_include/entt/entt.hpp"
 
 #include <random>
 
@@ -22,7 +22,7 @@ public:
 
 
     
-    static std::string GetComponentDisplayName(std::string componentClassName);
+    
 
     static entt::registry& Get();
     static size_t GenerateRandomNumber();

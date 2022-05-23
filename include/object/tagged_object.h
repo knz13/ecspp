@@ -40,10 +40,10 @@ public:
 
 	void ForSelfAndEachChild(std::function<void(Derived)> func) {
 		func(*((Derived*)this));
-		if (Properties().GetChildren().size() == 0) {
+		if (GetChildren().size() == 0) {
 			return;
 		}
-		for (auto id : Properties().GetChildren()) {
+		for (auto id : GetChildren()) {
 			if(id){
 				id.GetAs<Derived>().ForSelfAndEachChild(func);
 			}
@@ -51,10 +51,10 @@ public:
 	};
 
 	void ForEachChild(std::function<void(Derived)> func){
-		if (Properties().GetChildren().size() == 0) {
+		if (GetChildren().size() == 0) {
 			return;
 		}
-		for (auto id : Properties().GetChildren()) {
+		for (auto id : GetChildren()) {
 			if(id){
 				func(id.GetAs<Derived>());
 			}
