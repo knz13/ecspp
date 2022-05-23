@@ -37,7 +37,7 @@ public:
 
 	template<typename Type>
 	Type& GetAs() {
-		return *T
+		return *((Type*)m_Component);
 	};
 
 	operator bool() {
