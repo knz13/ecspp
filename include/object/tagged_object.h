@@ -51,7 +51,7 @@ public:
 		}
 		for (auto id : GetChildren()) {
 			if(id){
-				id.GetAs<Derived>().ForSelfAndEachChild(func);
+				id.template GetAs<Derived>().ForSelfAndEachChild(func);
 			}
 		}
 	};
@@ -62,7 +62,7 @@ public:
 		}
 		for (auto id : GetChildren()) {
 			if(id){
-				func(id.GetAs<Derived>());
+				func(id.template GetAs<Derived>());
 			}
 		}
 

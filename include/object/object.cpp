@@ -94,7 +94,7 @@ bool Object::IsInChildren(Object object) {
     return Properties().IsInChildren(object);
 }
 
-void Object::ForEachChild(std::function<void(Object&)> func) {
+void Object::ForEachChild(std::function<void(Object)> func) {
     if(GetChildren().size() == 0){
         return;
     }  

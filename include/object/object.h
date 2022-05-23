@@ -159,7 +159,7 @@ public:
     const std::vector<ObjectHandle>& GetChildren() const;
     const std::vector< std::string>& GetComponentsNames() const;
     void ForEachComponent(std::function<void(NamedComponentHandle<Component>&)> func);
-    void ForEachChild(std::function<void(Object&)> func);
+    void ForEachChild(std::function<void(Object)> func);
     
 
     std::string GetType();
