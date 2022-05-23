@@ -75,6 +75,8 @@ add_subdirectory(test)
 #creating library
 add_library(ecspp STATIC
 
+	${PROJECT_SOURCE_DIR}/include/helpers/helpers.cpp
+
 	${PROJECT_SOURCE_DIR}/include/object/object.cpp
 
 	${PROJECT_SOURCE_DIR}/include/object/object_properties.cpp

@@ -31,7 +31,7 @@ public:
 		return m_Component;
 	}
 
-	T& Get() {
+	Component& Get() {
 		return *m_Component;
 	};
 
@@ -111,8 +111,6 @@ public:
 		}
 
 		T obj(ent,args...);
-
-		obj.SetEntity(ent);
 
 		((ObjectBase*)(&obj))->Init();
 
@@ -209,9 +207,7 @@ public:
 		return m_RegisteredTagsByType.find(HelperFunctions::HashClassName<T>()) != m_RegisteredTagsByType.end();
 	}
 
-	static bool SerializeScene(std::string savePath);
-
-	static bool DeserializeScene(std::string path);
+	
 
 	
 protected:

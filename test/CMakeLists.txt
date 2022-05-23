@@ -40,20 +40,20 @@ project("ecspp_test_project")
 # --------------------- Repository declarations ------------------------
 
 
-#repository download and settings for alias gtest...
+#repository download and settings for alias catch2...
 
 
-	FetchContent_Declare(gtest_project
+	FetchContent_Declare(catch2_project
 
-		GIT_REPOSITORY https://github.com/google/googletest
+		GIT_REPOSITORY https://github.com/catchorg/Catch2
 
-		GIT_TAG release-1.11.0
+		GIT_TAG v3.0.1
 
-		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/gtest
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/catch2
 
 	)
 
-	list(APPEND ${PROJECT_NAME}_DEPENDENCIES gtest_project)
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES catch2_project)
 
 
 	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
@@ -82,7 +82,7 @@ set_property(TARGET ecspp_test PROPERTY CXX_STANDARD 20)
 
 target_link_libraries(ecspp_test PUBLIC ecspp)
 
-target_link_libraries(ecspp_test PUBLIC gtest)
+target_link_libraries(ecspp_test PUBLIC Catch2::Catch2WithMain)
 
 
 #adding includes...
@@ -90,4 +90,4 @@ target_link_libraries(ecspp_test PUBLIC gtest)
 
 target_include_directories(ecspp_test PUBLIC ${PROJECT_SOURCE_DIR}/../include)
 
-target_include_directories(ecspp_test PUBLIC ${PROJECT_SOURCE_DIR}/vendor/gtest/googletest/include)
+target_include_directories(ecspp_test PUBLIC ${PROJECT_SOURCE_DIR}/vendor/catch2/src)

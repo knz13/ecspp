@@ -6,10 +6,13 @@ namespace ecspp {
 template<typename ComponentName,typename ObjectType>
 class ComponentSpecifier : public Component {
 public:
-	std::string GetName() {
+	std::string GetTypeName() {
 		return HelperFunctions::GetClassName<ComponentName>();
 	}
 
+	static size_t AliveCount() {
+		return Registry::Get().storage<ComponentName>().size();
+	}
 
 protected:
 

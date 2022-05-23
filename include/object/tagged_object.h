@@ -18,7 +18,7 @@ private:
 template<typename Derived,typename DerivedComponent,typename DerivedStorage>
 class TaggedObject : public Object {
 public:
-	TaggedObject() {
+	TaggedObject(entt::entity e) : Object(e) {
 		(void)dummyVariable;
 	};
 

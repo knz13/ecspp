@@ -25,6 +25,18 @@ bool Object::HasComponent(std::string type)
 
 }
 
+bool Object::Empty() {
+    bool found = false;
+    ForEachComponent([&](auto handle){
+        found = true;
+
+    });
+    return !found;
+}
+
+void Object::RemoveChildren(Object object) {
+    Properties().RemoveChildren(object);
+}
 
 Object::Object(entt::entity ent) {
     if(!Registry::Get().valid(ent)){
@@ -34,16 +46,6 @@ Object::Object(entt::entity ent) {
 }
 
 
-void Object::SetEntity(entt::entity e) {
-    if(!Registry::Get().valid(e)){
-        DEBUG_ERROR("Passing an invalid entity!!!");
-    }   
-    m_EntityHandle = e;
-}
-
-Object::Object() {
-    
-}
 
 bool Object::HasSameObjectTypeAs(Object other)
 {

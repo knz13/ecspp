@@ -150,6 +150,7 @@ public:
         return Properties().m_MasterType;
     };
     
+    bool Empty();
     void SetParent(Object object);
     void RemoveChildren(Object object);
     void AddChildren(Object object);
@@ -170,7 +171,7 @@ public:
 
 protected:
    
-    Object();
+    
 
 
 
@@ -181,7 +182,6 @@ private:
         return Registry::Get().get<ObjectProperties>(m_EntityHandle);
     };
 
-    void SetEntity(entt::entity e);
     
 
     entt::entity m_EntityHandle;

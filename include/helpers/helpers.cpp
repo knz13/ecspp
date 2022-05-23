@@ -1,5 +1,6 @@
 #include "helpers.h"
 
+namespace ecspp {
 
 bool HelperFunctions::StringReplace(std::string& word, const std::string& oldVal, std::string newVal)
 {
@@ -64,3 +65,4 @@ bool HelperFunctions::IsMetaFunction(const std::string& className, std::string f
 
 
 
+};
