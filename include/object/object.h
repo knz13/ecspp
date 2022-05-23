@@ -129,7 +129,7 @@ public:
     template<typename T>
     static bool CopyComponent(Object from,Object to){
         if (ObjectPropertyRegister::CopyComponent<T>(from.ID(), to.ID())) {
-            to.Properties().SetComponentsNames(ObjectPropertyRegister::GetObjectComponents(m_EntityHandle));
+            to.Properties().SetComponentsNames(ObjectPropertyRegister::GetObjectComponents(to.m_EntityHandle));
             return true;
         }
         return false;
