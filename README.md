@@ -208,7 +208,7 @@ And change it however you like!
 
 Our object also has some very useful methods such as...
 
-### Getting, adding, erasing, copying and cheching if it has the component by name!
+### Getting, adding, erasing and copying by name!
 ```
   .
   . 
