@@ -290,6 +290,8 @@ public:
             }
         }
 
+        
+
         EventReceiver& operator=(const EventReceiver& other) {
             for (auto& [ptr, prop] : other.m_SubscribedEvents) {
                 prop.m_CopyFunc(this);
@@ -324,6 +326,10 @@ public:
             }
             return false;
         };
+
+        void Clear() {
+            m_Receivers.clear();
+        }
 
 
         void EmitEvent(Args... args) {
