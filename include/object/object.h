@@ -11,8 +11,13 @@ class Component;
 
 class Object : public ObjectBase {
 public:
-    Object(entt::entity ent);
-    ~Object();
+    Object(entt::entity ent) {
+        if (!Registry::Get().valid(ent)) {
+            DEBUG_ERROR("Passing an invalid entity!!!");
+        }
+        m_EntityHandle = ent;
+    }
+    ~Object() {};
 
 
     template<typename T>
@@ -21,7 +26,23 @@ public:
         return ObjectPropertyRegister::HasComponent<T>(m_EntityHandle);
     }
 
-    bool HasComponent(std::string type);
+    bool HasComponent(std::string type) {
+
+        auto resolved = entt::resolve(entt::hashed_string(type.c_str()));
+
+        if (resolved) {
+            if (auto func = resolved.func(entt::hashed_string("Has Component")); func) {
+                return *((bool*)func.invoke({}, this->ID()).data());
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+
+    }
 
     template<typename T>
     T& GetComponent() {
@@ -135,7 +156,9 @@ public:
         return false;
     };
 
-    bool HasSameObjectTypeAs(Object other);
+    bool HasSameObjectTypeAs(Object other) {
+        return Properties().m_MasterType == other.Properties().m_MasterType;
+    }
 
     template<typename T>
     bool IsOfType() {
@@ -150,21 +173,91 @@ public:
         return Properties().m_MasterType;
     };
     
-    bool Empty();
-    void SetParent(Object object);
-    void RemoveChildren(Object object);
-    void AddChildren(Object object);
-    bool IsInChildren(Object object);
-    ObjectHandle GetParent();
-    const std::vector<ObjectHandle>& GetChildren() const;
-    const std::vector< std::string>& GetComponentsNames() const;
-    void ForEachComponent(std::function<void(NamedComponentHandle<Component>&)> func);
-    void ForEachChild(std::function<void(Object)> func);
+    bool Empty() {
+        bool found = false;
+        ForEachComponent([&](auto handle) {
+            found = true;
+
+            });
+        return !found;
+    }
+
+    void ClearParent() {
+        if (Properties().m_Parent) {
+            Properties().m_Parent.GetAs<Object>().Properties().RemoveChildren(this->Properties());
+        }
+    }
+
+    void SetParent(Object object) {
+        Properties().SetParent(object.Properties());
+
+    }
+
+    void RemoveChildren(Object object) {
+        Properties().RemoveChildren(object);
+    }
+
+    void AddChildren(Object object) {
+        return Properties().AddChildren(object);
+    }
+
+    bool IsInChildren(Object object) const {
+        ObjectHandle handle(object.ID());
+        if (Properties().m_Children.size() == 0) {
+            return false;
+        }
+        auto it = std::find(Properties().m_Children.begin(), Properties().m_Children.end(), handle);
+        if (it != Properties().m_Children.end()) {
+            return true;
+        }
+        for (auto& id : Properties().m_Children) {
+            if (id.GetAs<Object>().IsInChildren(object)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    ObjectHandle GetParent() const {
+        return Properties().GetParent();
+    }
+
+    const std::vector<ObjectHandle>& GetChildren() const {
+        return Properties().GetChildren();
+    }
+
+    const std::vector< std::string>& GetComponentsNames() const {
+        return Properties().GetComponentsNames();
+    }
+
+    void ForEachComponent(std::function<void(NamedComponentHandle<Component>&)> func) {
+        for (auto& componentName : GetComponentsNames()) {
+            NamedComponentHandle<Component> comp = ObjectPropertyRegister::GetComponentByName<Component>(this->ID(), componentName);
+            if (comp) {
+                func(comp);
+            }
+        }
+    }
+
+    void ForEachChild(std::function<void(Object)> func) {
+        if (GetChildren().size() == 0) {
+            return;
+        }
+        for (auto& child : GetChildren()) {
+            if (child) {
+                func(child.GetAs<Object>());
+            }
+        }
+    }
     
 
-    std::string GetType();
+    std::string GetType() {
+        return ObjectPropertyRegister::GetClassNameByID(Properties().m_MasterType);
+    }
    
-    std::string GetName();
+    std::string GetName() {
+        return Properties().m_Name;
+    }
 
 
     

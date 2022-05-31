@@ -8,6 +8,8 @@
 #include "../../vendor/entt/single_include/entt/entt.hpp"
 #include "object_properties.h"
 #include "object_base.h"
+#include "../global.h"
+
 
 
 namespace ecspp {
@@ -59,7 +61,7 @@ class Object;
 class ObjectPropertyRegister {
 public:
 
-	template<typename Component,typename... Args>
+	template<typename Component, typename... Args>
 	static void MakeComponentPresentIn() {
 		(ObjectPropertyRegister::MakeComponentPresentBackground<Component, Args>(), ...);
 	}
@@ -69,39 +71,58 @@ public:
 		m_ComponentsToMakeOmnipresent.push_back(HelperFunctions::GetClassName<T>());
 	};
 
-	template<typename Storage,typename MainClass>
+	template<typename Storage, typename MainClass>
 	static void RegisterClassAsPropertyStorage() {
 		m_PropertyStorageContainer[HelperFunctions::HashClassName<MainClass>()] = [](entt::entity e) {
 			Registry::Get().emplace<Storage>(e);
 		};
 	};
 
-	
 
-	template<typename Tag,typename Attached>
+
+	template<typename Tag, typename Attached>
 	static void RegisterClassAsObjectTag() {
 		entt::id_type hash = HelperFunctions::HashClassName<Attached>();
-		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag,Attached>>(entt::hashed_string("ForEach"));
+		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag, Attached>>(entt::hashed_string("ForEach"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDestroyForObject<Attached>>(entt::hashed_string("Destroy"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry::Get().emplace<Tag>(e);
 		};
+		m_RegisteredTypesByTag[entt::type_hash<Tag>().value()] = hash;
 		m_RegisteredTagsByType[hash] = entt::type_hash<Tag>().value();
 		m_RegisteredObjectNames[hash] = HelperFunctions::GetClassName<Attached>();
-		
-		
+
+
 	}
 
-	static ObjectHandle CreateObjectFromType(std::string type,std::string objectName);
+	static ObjectHandle CreateObjectFromType(std::string type, std::string objectName) {
+		auto resolved = entt::resolve(entt::hashed_string(type.c_str()));
 
-	template<typename T,typename... Args>
-	static void InitializeObject(entt::entity ent,Args&&... args) {
+		if (resolved) {
+			if (auto func = resolved.func(entt::hashed_string("Create")); func) {
+				auto result = func.invoke({}, objectName);
+				if (result) {
+					return ObjectHandle(*((entt::entity*)result.data()));
+				}
+				DEBUG_LOG("Create function for object with name " + objectName + " was not successful!");
+				return {};
+			}
+			DEBUG_LOG("Couldn't identify create function for object, make sure it is derived from TaggedObject");
+			return {};
+		}
+		DEBUG_LOG("Couldn't identify object type specified, check for spelling errors...");
+		return {};
+
+	}
+
+	template<typename T, typename... Args>
+	static void InitializeObject(entt::entity ent, Args&&... args) {
 
 		entt::id_type hash = HelperFunctions::HashClassName<T>();
-		
-		
-		
+
+
+
 		if (m_RegisteredObjectTagsStartingFuncs.find(hash) != m_RegisteredObjectTagsStartingFuncs.end()) {
 			m_RegisteredObjectTagsStartingFuncs[hash](ent);
 		}
@@ -110,7 +131,7 @@ public:
 			m_PropertyStorageContainer[hash](ent);
 		}
 
-		T obj(ent,args...);
+		T obj(ent, args...);
 
 		((ObjectBase*)(&obj))->Init();
 
@@ -145,15 +166,15 @@ public:
 		return T(firstObject);
 	};
 
-	
-	
 
-	template<typename T,typename... Args>
-	static T CreateNew(std::string name,Args&&... args) {
+
+
+	template<typename T, typename... Args>
+	static T CreateNew(std::string name, Args&&... args) {
 		static_assert(std::is_base_of<Object, T>::value);
 
 		entt::entity ent = Registry::Get().create();
-		
+
 		int index = 1;
 		if (Registry::FindObjectByName(name)) {
 			if (name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)) {
@@ -168,25 +189,45 @@ public:
 
 		Registry::Get().emplace<ObjectProperties>(ent, name, HelperFunctions::HashClassName<T>(), ent);
 
-		ObjectPropertyRegister::InitializeObject<T,Args...>(ent,args...);
+		ObjectPropertyRegister::InitializeObject<T, Args...>(ent, args...);
 
 		return T(ent);
 	}
 
 
-	
 
-	template<typename ComponentType,typename Component>
+
+	template<typename ComponentType, typename Component>
 	static void RegisterClassAsComponentOfType() {
 		m_RegisteredComponentsByType[HelperFunctions::HashClassName<ComponentType>()].push_back(HelperFunctions::GetClassName<Component>());
 		RegisterClassAsComponent<Component>();
 		m_RegisteredComponentsNames[entt::type_hash<Component>().value()] = HelperFunctions::GetClassName<Component>();
 	};
-	
-	static std::vector<std::string> GetObjectComponents(entt::entity e);
 
-	static std::string GetClassNameByID(entt::id_type id);
-	
+	static std::vector<std::string> GetObjectComponents(entt::entity e) {
+		std::vector<std::string> vec;
+		for (auto [id, storage] : Registry::Get().storage()) {
+			if (id == entt::type_hash<ObjectProperties>().value()) {
+				continue;
+			}
+			if (std::find(m_RegisteredComponentsByType[Object(e).GetTypeID()].begin(), m_RegisteredComponentsByType[Object(e).GetTypeID()].end(), ObjectPropertyRegister::GetComponentNameByID(id)) == m_RegisteredComponentsByType[Object(e).GetTypeID()].end()) {
+				continue;
+			}
+			if (storage.contains(e)) {
+				vec.push_back(GetComponentNameByID(id));
+			}
+		}
+		return vec;
+
+	}
+
+	static std::string GetClassNameByID(entt::id_type id) {
+		if (m_RegisteredObjectNames.find(id) != m_RegisteredObjectNames.end()) {
+			return m_RegisteredObjectNames[id];
+		}
+		return "";
+	}
+
 	template<typename T>
 	static entt::entity CreateObjectAndReturnHandle(std::string name) {
 		T obj = CreateNew<T>(name);
@@ -194,34 +235,90 @@ public:
 		return obj.ID();
 	};
 
-	static void Each(std::function<void(Object)> func);
+	static void Each(std::function<void(ObjectHandle)> func) {
+		Registry::Get().each([&](entt::entity e) {
+			if (ObjectHandle(e)) {
+				func(ObjectHandle(e));
+			}
+			});
+	}
 
-	static bool DeleteObject(ObjectHandle obj);
+	static bool DeleteObject(ObjectHandle obj) {
+		if (obj) {
+			m_ObjectsToDelete.push_back(obj);
+			return true;
+		}
+		DEBUG_LOG("Could not delete object with id " + obj.ToString() + " because it was not valid!");
+		return false;
+	}
 
-	static void ClearDeletingQueue();
+	static void ClearDeletingQueue() {
+		for (auto& objHandle : m_ObjectsToDelete) {
+			if (!objHandle) {
 
-	static bool IsClassRegistered(std::string className);
+				continue;
+			}
+			std::vector<ObjectHandle> objectAndAllChildren;
+
+			GetAllChildren(objHandle, objectAndAllChildren);
+
+			for (auto& objectHandle : objectAndAllChildren) {
+				if (!objectHandle) {
+					DEBUG_LOG("Could not delete object with id " + objectHandle.ToString() + " because it was not valid! During ObjectPropertyRegister::ClearDeletingQueue()");
+					continue;
+				}
+				std::string objectType = GetObjectType(objectHandle.ID());
+
+				if (objectType == "") {
+					continue;
+				}
+
+				Object object(objectHandle.ID());
+				std::vector<std::string> componentNames = GetObjectComponents(objectHandle.ID());
+				auto it = componentNames.begin();
+				while (it != componentNames.end()) {
+					HelperFunctions::CallMetaFunction(*it, "Erase Component", objectHandle.ID());
+					it++;
+				}
+
+				if (!HelperFunctions::CallMetaFunction(objectType, "Destroy", objectHandle.ID())) {
+					DEBUG_LOG("Could not call destroy for object with type: " + objectType + ", and name: " + objectHandle.GetAsObject().GetName());
+				}
+				Registry::Get().destroy(objectHandle.ID());
+			}
+
+		}
+		if (m_ObjectsToDelete.size() > 0) {
+			ValidateAllGameObjects();
+		}
+		m_ObjectsToDelete.clear();
+	}
+
+	static bool IsClassRegistered(std::string className) {
+		return entt::resolve(entt::hashed_string(className.c_str())).operator bool();
+	}
+
 
 	template<typename T>
 	static bool IsTypeOfObject() {
 		return m_RegisteredTagsByType.find(HelperFunctions::HashClassName<T>()) != m_RegisteredTagsByType.end();
 	}
 
-	
 
-	
+
+
 protected:
 	static std::string GetComponentNameByID(entt::id_type id) {
 		return m_RegisteredComponentsNames[id];
 	}
 
-	
+
 	static bool IsHandleValid(entt::entity e) {
 		if (Registry::Get().valid(e)) {
 			return true;
 		}
 		throw std::runtime_error("Using Invalid entity!");
-		
+
 	}
 
 	template<typename T>
@@ -232,12 +329,12 @@ protected:
 		catch (std::runtime_error& err) {
 			throw err;
 		}
-		
+
 		return Registry::Get().all_of<T>(e);
 	};
 
-	template<typename T,typename... Args>
-	static bool AddComponent(entt::entity e,Args&&... args) {
+	template<typename T, typename... Args>
+	static bool AddComponent(entt::entity e, Args&&... args) {
 		bool value = false;
 		try {
 			value = HasComponent<T>(e);
@@ -248,7 +345,7 @@ protected:
 
 
 		if (!value) {
-			Component* comp = (Component*) & Registry::Get().emplace<T>(e, std::forward<Args>(args)...);
+			Component* comp = (Component*)&Registry::Get().emplace<T>(e, std::forward<Args>(args)...);
 			comp->SetMaster(e);
 			comp->Init();
 
@@ -278,18 +375,18 @@ protected:
 				return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
 			}
 			else {
-				
+
 				return NamedComponentHandle<T>(nullptr);
 			}
 		}
 	};
-	
-	template<typename T,typename... Args>
-	static NamedComponentHandle<T> GetComponentWithArgs(entt::entity e,Args&&... args) {
+
+	template<typename T, typename... Args>
+	static NamedComponentHandle<T> GetComponentWithArgs(entt::entity e, Args&&... args) {
 		bool couldAdd = false;
 
 		try {
-			AddComponent<T,Args...>(e,std::forward<Args>(args)...);
+			AddComponent<T, Args...>(e, std::forward<Args>(args)...);
 		}
 		catch (std::runtime_error& err) {
 			throw err;
@@ -303,18 +400,18 @@ protected:
 				return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
 			}
 			else {
-				
+
 				return NamedComponentHandle<T>(nullptr);
 			}
 		}
 	};
 
-	
 
-	
+
+
 
 	template<typename ReturnType>
-	static NamedComponentHandle<ReturnType> AddComponentByName(entt::entity e,std::string stringToHash) {
+	static NamedComponentHandle<ReturnType> AddComponentByName(entt::entity e, std::string stringToHash) {
 		if (!Registry::Get().valid(e)) {
 			return {};
 		}
@@ -323,7 +420,7 @@ protected:
 		ReturnType* returnData = nullptr;
 		if (resolved) {
 			entt::meta_any owner = resolved.construct(e);
-			
+
 			returnData = (ReturnType*)owner.data();
 
 			if (returnData == nullptr) {
@@ -331,14 +428,14 @@ protected:
 			}
 
 		}
-		return {returnData};
-		
+		return { returnData };
+
 	};
 
 	template<typename ReturnType>
-	static NamedComponentHandle<ReturnType> GetComponentByName(entt::entity e,std::string name) {
+	static NamedComponentHandle<ReturnType> GetComponentByName(entt::entity e, std::string name) {
 		NamedComponentHandle<ReturnType> comp;
-		
+
 		try {
 			comp = AddComponentByName<ReturnType>(e, name);
 		}
@@ -351,12 +448,12 @@ protected:
 
 	template<typename T>
 	static bool EraseComponent(entt::entity e) {
-		
+
 		if (HasComponent<T>(e)) {
 			T* comp = GetComponent<T>(e).GetComponentPointer();
 			((Component*)comp)->Destroy();
 
-			
+
 
 			Registry::Get().storage<T>().erase(e);
 			return true;
@@ -365,7 +462,7 @@ protected:
 	}
 
 	template<typename T>
-	static bool CopyComponent(entt::entity first,entt::entity second) {
+	static bool CopyComponent(entt::entity first, entt::entity second) {
 		if (HasComponent<T>(first) && HasComponent<T>(second)) {
 			T& firstComp = *GetComponent<T>(first).GetComponentPointer();
 			T& secondComp = *GetComponent<T>(second).GetComponentPointer();
@@ -378,7 +475,7 @@ protected:
 	}
 
 
-	template<typename,typename,typename>
+	template<typename, typename, typename>
 	friend class TaggedObject;
 	friend class Object;
 
@@ -393,22 +490,59 @@ private:
 		T obj(e);
 
 		((ObjectBase*)(&obj))->Destroy();
-		
+
 		return true;
 
 	}
-	
-	static void ValidateAllGameObjects();
-	
+
+	static void ValidateAllGameObjects() {
+		Registry::Get().each([](entt::entity e) {
+			for (auto& compName : ObjectPropertyRegister::GetObjectComponents(e)) {
+				auto handle = ObjectPropertyRegister::GetComponentByName<Component>(e, compName);
+				if (handle) {
+					Component& comp = handle.Get();
+					comp.SetMaster(e);
+				}
+			}
+			});
+	}
+
+
+	static std::string GetObjectType(entt::entity e) {
+		auto wholeStorage = Registry::Get().storage();
+
+		for (auto [id, storage] : wholeStorage) {
+			if (m_RegisteredTypesByTag.find(id) != m_RegisteredTypesByTag.end()) {
+				return m_RegisteredObjectNames[m_RegisteredTypesByTag[id]];
+			}
+		}
+
+
+		return "";
+
+
+
+	};
+
+
+
+
+
+
+	static void GetAllChildren(ObjectHandle current, std::vector<ObjectHandle>& vec) {
+		if (!current) {
+			return;
+		}
+		vec.push_back(current);
+
+		for (auto& handle : GetComponent<ObjectProperties>(current.ID()).GetAs<ObjectProperties>().GetChildren()) {
+			if (handle) {
+				GetAllChildren(handle, vec);
+			}
+		}
+	}
 
 	
-
-	
-
-
-	
-	
-	static void GetAllChildren(ObjectHandle current, std::vector<ObjectHandle>& vec);
 	
 
 	template<typename T>
@@ -472,6 +606,7 @@ private:
 	inline static std::unordered_map<entt::id_type, std::function<void(entt::entity)>> m_RegisteredObjectTagsStartingFuncs;
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_RegisteredComponentsByType;
 	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredTagsByType;
+	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredTypesByTag;
 	inline static std::unordered_map<std::string, entt::id_type> m_RegisteredTagsByName;
 	inline static std::unordered_map<entt::id_type, std::string> m_RegisteredComponentsNames;
 	inline static std::unordered_map<entt::id_type, std::string> m_RegisteredObjectNames;

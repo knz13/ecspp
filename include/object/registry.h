@@ -1,8 +1,9 @@
 #pragma once
 #include "../helpers/helpers.h"
 #include "../../vendor/entt/single_include/entt/entt.hpp"
-
+#include <ctime>
 #include <random>
+#include "../global.h"
 
 namespace ecspp {
 
@@ -15,6 +16,7 @@ namespace ComponentHelpers {
     };
 }
 
+
 class Object;
 class ObjectHandle;
 class Registry{
@@ -24,63 +26,23 @@ public:
     
     
 
-    static entt::registry& Get();
-    static size_t GenerateRandomNumber();
-    
-
-    static ObjectHandle FindObjectByName(std::string name);
-
-    
-
-
-private:
-   
-    
-
-    
-    static std::mt19937 m_RandomGenerator;
-   
-    static entt::registry m_Registry;
-
-};
-
-
-class Object;
-
-class ObjectHandle {
-public:
-    ObjectHandle(entt::entity ent);
-    ObjectHandle(Object obj);
-    ObjectHandle();
-
-    Object GetAsObject() const;
-
-    template<typename T>
-    T GetAs() const{
-        return T(m_Handle);
+    static entt::registry& Get() {
+        return m_Registry;
     }
-
-    operator bool() const{
-        if (isNull) {
-            return false;
-        }
-        return Registry::Get().valid(m_Handle);
+    static size_t GenerateRandomNumber() {
+        return m_RandomGenerator();
     };
 
-    entt::entity ID() const;
-
-    std::string ToString() const ;
-
-    bool IsType(entt::id_type type) const;
-
-    bool operator==(const ObjectHandle& other) const;
-
+    
 
 
 private:
-    entt::entity m_Handle = entt::null;
-    bool isNull = false;
+   
+    
 
-};
+    
+    static inline std::mt19937 m_RandomGenerator = std::mt19937(time(nullptr));
+   
+    static inline entt::registry m_Registry;
 
 };

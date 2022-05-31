@@ -33,7 +33,7 @@
 
 
 build*
-vendor*
+test/vendor*
 .vscode*
 .vs*
 out*

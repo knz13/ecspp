@@ -61,6 +61,22 @@ add_subdirectory(test)
 	list(APPEND ${PROJECT_NAME}_DEPENDENCIES entt_project)
 
 
+#repository download and settings for alias yael...
+
+
+	FetchContent_Declare(yael_project
+
+		GIT_REPOSITORY https://github.com/knz13/YAEL
+
+		GIT_TAG origin/main
+
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/vendor/yael
+
+	)
+
+	list(APPEND ${PROJECT_NAME}_DEPENDENCIES yael_project)
+
+
 	FetchContent_MakeAvailable(${${PROJECT_NAME}_DEPENDENCIES})
 
 	foreach(X IN LISTS ${PROJECT_NAME}_DEPENDENCIES)
@@ -71,27 +87,3 @@ add_subdirectory(test)
 		)
 
 	endforeach() 
-
-#creating library
-add_library(ecspp STATIC
-
-	${PROJECT_SOURCE_DIR}/include/helpers/helpers.cpp
-
-	${PROJECT_SOURCE_DIR}/include/object/object.cpp
-
-	${PROJECT_SOURCE_DIR}/include/object/object_properties.cpp
-
-	${PROJECT_SOURCE_DIR}/include/object/object_property_register.cpp
-
-	${PROJECT_SOURCE_DIR}/include/object/registry.cpp
-
-)
-
-set_property(TARGET ecspp PROPERTY CXX_STANDARD 17)
-
-
-
-#adding includes...
-
-
-target_include_directories(ecspp PUBLIC ${PROJECT_SOURCE_DIR}/vendor/entt/single_include)
