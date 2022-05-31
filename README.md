@@ -1,36 +1,9 @@
 # ECSpp
-Wrapper for the [entt](https://github.com/skypjack/entt) Entity Component System library.
+Header-only wrapper for the [entt](https://github.com/skypjack/entt) Entity Component System library.
 
 # Motivation
 
 I created this library in order to lower the entry requirements in the ecs usage with c++ since the incredible entt library made by [skypjack](https://github.com/skypjack) was a very hard to get into and understand.
-
-
-# Build
-
-I tried to make the build steps as simple as possible.
-
-You'll need to have:
-1. CMake in your machine which can be downloaded with this [link](https://cmake.org/download/)
-
-That's it!
-
-Just add it to your project like this...
-```
-  include(FetchContent)
-  
-  FetchContent_Declare(ECSPP
-  GIT_REPOSITORY https://github.com/knz13/ecspp
-  GIT_TAG origin/main
-  SOURCE_DIR "OptionalDirectoryToDownloadInto"
-  )
-  
-  FetchContent_MakeAvailable(ECSPP)
-  
-  target_link_libraries(YourLib ecspp)
-```
-
-And you're done!
 
 # Usage
 
@@ -44,7 +17,7 @@ Alright, first we'll create the GameObject class. (I'm using the [glm](https://g
 
 ```
 #pragma once
-#include "ecspp.h" //including the library
+#include "include/ecspp.h" //including the library
 
 using namespace ecspp;
 
