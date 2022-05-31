@@ -56,7 +56,6 @@ private:
 
 
 
-
 class Object;
 class ObjectPropertyRegister {
 public:
@@ -166,8 +165,15 @@ public:
 		return T(firstObject);
 	};
 
+	static ObjectHandle FindObjectByName(std::string name) {
+		for (auto [handle, comp] : Registry::Get().storage<ObjectProperties>().each()) {
+			if (comp.GetName() == name) {
+				return ObjectHandle(handle);
+			}
+		}
+		return ObjectHandle();
 
-
+	};
 
 	template<typename T, typename... Args>
 	static T CreateNew(std::string name, Args&&... args) {
@@ -176,13 +182,13 @@ public:
 		entt::entity ent = Registry::Get().create();
 
 		int index = 1;
-		if (Registry::FindObjectByName(name)) {
+		if (FindObjectByName(name)) {
 			if (name.find_last_of(")") == std::string::npos || (name.find_last_of(")") != name.size() - 1)) {
 				name += "(" + std::to_string(index) + ")";
 			}
 		}
 
-		while (Registry::FindObjectByName(name)) {
+		while (FindObjectByName(name)) {
 			index++;
 			name.replace(name.find_last_of("(") + 1, std::to_string(index - 1).size(), std::to_string(index));
 		}
@@ -210,7 +216,10 @@ public:
 			if (id == entt::type_hash<ObjectProperties>().value()) {
 				continue;
 			}
-			if (std::find(m_RegisteredComponentsByType[Object(e).GetTypeID()].begin(), m_RegisteredComponentsByType[Object(e).GetTypeID()].end(), ObjectPropertyRegister::GetComponentNameByID(id)) == m_RegisteredComponentsByType[Object(e).GetTypeID()].end()) {
+
+			std::string objectType = GetObjectType(e);
+
+			if (std::find(m_RegisteredComponentsByType[entt::hashed_string(objectType.c_str())].begin(), m_RegisteredComponentsByType[entt::hashed_string(objectType.c_str())].end(), ObjectPropertyRegister::GetComponentNameByID(id)) == m_RegisteredComponentsByType[entt::hashed_string(objectType.c_str())].end()) {
 				continue;
 			}
 			if (storage.contains(e)) {
@@ -273,7 +282,6 @@ public:
 					continue;
 				}
 
-				Object object(objectHandle.ID());
 				std::vector<std::string> componentNames = GetObjectComponents(objectHandle.ID());
 				auto it = componentNames.begin();
 				while (it != componentNames.end()) {
@@ -282,7 +290,7 @@ public:
 				}
 
 				if (!HelperFunctions::CallMetaFunction(objectType, "Destroy", objectHandle.ID())) {
-					DEBUG_LOG("Could not call destroy for object with type: " + objectType + ", and name: " + objectHandle.GetAsObject().GetName());
+					DEBUG_LOG("Could not call destroy for object with type: " + objectType );
 				}
 				Registry::Get().destroy(objectHandle.ID());
 			}
@@ -535,7 +543,7 @@ private:
 		}
 		vec.push_back(current);
 
-		for (auto& handle : GetComponent<ObjectProperties>(current.ID()).GetAs<ObjectProperties>().GetChildren()) {
+		for (auto& handle : Registry::Get().get<ObjectProperties>(current.ID()).GetChildren()) {
 			if (handle) {
 				GetAllChildren(handle, vec);
 			}

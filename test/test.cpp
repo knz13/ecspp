@@ -1,7 +1,5 @@
-#include "ecspp.h"
+#include "../include/ecspp.h"
 #include "catch2/catch_test_macros.hpp"
-
-using namespace ecspp;
 
 class TestObject;
 

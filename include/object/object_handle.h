@@ -2,22 +2,25 @@
 #include "../global.h"
 #include "registry.h"
 
-namespace ecspp {
 
+namespace ecspp {
+    class Object;
     class ObjectHandle {
     public:
         ObjectHandle(entt::entity ent) {
             m_Handle = ent;
         }
 
+        ObjectHandle(Object obj);
+
         ObjectHandle() {}
 
         template<typename T>
-        T GetAs() const{
+        T GetAs() const {
             return T(m_Handle);
         }
 
-        operator bool() const{
+        operator bool() const {
             if (isNull) {
                 return false;
             }
@@ -44,4 +47,4 @@ namespace ecspp {
     };
 
 
-}
+};

@@ -80,7 +80,6 @@ set_property(TARGET ecspp_test PROPERTY CXX_STANDARD 20)
 
 #adding libraries...
 
-target_link_libraries(ecspp_test PUBLIC ecspp)
 
 target_link_libraries(ecspp_test PUBLIC Catch2::Catch2WithMain)
 

@@ -3,9 +3,12 @@
 #include "object_properties.h"
 #include "object_property_register.h"
 #include "object_base.h"
-
+#include "object_handle.h"
 
 namespace ecspp {
+
+
+
 
 class Component;
 
@@ -194,11 +197,11 @@ public:
     }
 
     void RemoveChildren(Object object) {
-        Properties().RemoveChildren(object);
+        Properties().RemoveChildren(object.Properties());
     }
 
     void AddChildren(Object object) {
-        return Properties().AddChildren(object);
+        return Properties().AddChildren(object.Properties());
     }
 
     bool IsInChildren(Object object) const {
@@ -294,5 +297,9 @@ private:
     friend class Component;
 };
 
+
+ObjectHandle::ObjectHandle(Object obj) {
+    m_Handle = obj.ID();
+};
 
 };

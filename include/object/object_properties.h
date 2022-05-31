@@ -8,6 +8,7 @@
 
 namespace ecspp {
 
+class Object;
 class ObjectProperties {
 public:
 

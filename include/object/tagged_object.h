@@ -1,5 +1,6 @@
 #pragma once
 #include "object.h"
+#include "object_handle.h"
 #include "../components/component_specifier.h"
 #include <filesystem>
 
