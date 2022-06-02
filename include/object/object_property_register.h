@@ -491,8 +491,8 @@ protected:
 	}
 
 
-	template<typename, typename, typename>
-	friend class TaggedObject;
+	template<typename>
+	friend class RegisterObjectType;
 	friend class Object;
 
 private:
@@ -612,7 +612,6 @@ private:
 	template<typename Component,typename T>
 	static void MakeComponentPresentBackground() {
 		m_ComponentsToMakeAvailableAtStartByType[HelperFunctions::HashClassName<T>()].push_back(HelperFunctions::GetClassName<Component>());
-
 	};
 
 	inline static std::vector<ObjectHandle> m_ObjectsToDelete;
@@ -633,13 +632,13 @@ private:
 
 
 template<typename T>
-class TemplatedObjectHandle {
+class NamedObjectHandle {
 public:
-	TemplatedObjectHandle(entt::entity ent) {
+	NamedObjectHandle(entt::entity ent) {
 		m_Handle = ent;
 		isNull = false;
 	}
-	TemplatedObjectHandle() {
+	NamedObjectHandle() {
 		isNull = true;
 	}
 

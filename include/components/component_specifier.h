@@ -16,8 +16,8 @@ public:
 
 protected:
 
-	TemplatedObjectHandle<ObjectType> GetMasterObject() const {
-		return TemplatedObjectHandle<ObjectType>(Component::m_MasterHandle);
+	NamedObjectHandle<ObjectType> GetMasterObject() const {
+		return NamedObjectHandle<ObjectType>(Component::m_MasterHandle);
 	};
 
 private:
