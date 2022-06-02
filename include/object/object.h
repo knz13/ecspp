@@ -262,7 +262,14 @@ public:
         return Properties().m_Name;
     }
 
+    static void ForEach(std::function<void(Object)> func) {
+        Registry::Get().each([&](const entt::entity e) {
 
+            func(Object(e));
+
+        });
+
+    }
     
 
 protected:
