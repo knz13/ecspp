@@ -134,15 +134,18 @@ public:
 
 		((ObjectBase*)(&obj))->Init();
 
+		
+		
 		if (m_ComponentsToMakeAvailableAtStartByType.find(hash) != m_ComponentsToMakeAvailableAtStartByType.end()) {
 			for (auto& componentName : m_ComponentsToMakeAvailableAtStartByType[hash]) {
-				obj.AddComponentByName(componentName);
+				AddComponentByName<Component>(obj.ID(), componentName);
 			}
 		}
 
 		for (auto& componentName : m_ComponentsToMakeOmnipresent) {
-			obj.AddComponentByName(componentName);
+			AddComponentByName<Component>(obj.ID(), componentName);
 		}
+		
 
 
 	}

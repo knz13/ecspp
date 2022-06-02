@@ -147,3 +147,19 @@ TEST_CASE("Parenting tests") {
 
 }
 
+
+struct ObjectWithoutComponents : public ecspp::RegisterComponentlessObjectType<ObjectWithoutComponents> {
+public:
+    ObjectWithoutComponents(entt::entity e) : RegisterComponentlessObjectType(e) {
+
+    }
+};
+
+
+TEST_CASE("Componentless object tests") {
+    ObjectWithoutComponents obj = ObjectWithoutComponents::CreateNew("Hey");
+    
+
+
+}
+

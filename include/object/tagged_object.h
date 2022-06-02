@@ -123,5 +123,29 @@ private:
 
 };
 
+
+template<typename Derived>
+class RegisterComponentlessObjectType : public RegisterObjectType<Derived> {
+public:
+	RegisterComponentlessObjectType(entt::entity e) : RegisterObjectType<Derived>(e) {
+
+	};
+
+
+private:
+	using Object::AddComponent;
+	using Object::AddComponentByName;
+	using Object::CopyComponent;
+	using Object::CopyComponentByName;
+	using Object::EraseComponent;
+	using Object::EraseComponentByName;
+	using Object::ForEachComponent;
+	using Object::GetComponent;
+	using Object::GetComponentByName;
+	using Object::GetComponentsNames;
+	using Object::HasComponent;
 };
+
+};
+
 
