@@ -15,15 +15,49 @@ private:
 
 };
 
-
-template<typename Derived,typename DerivedComponent,typename DerivedStorage>
-class TaggedObject : public Object {
+template<class ObjectType,class StorageType>
+class RegisterStorage {
 public:
-	TaggedObject(entt::entity e) : Object(e) {
+	RegisterStorage() {
+
+	};
+	
+protected:
+	StorageType& Storage() {
+		return Registry::Get().get_or_emplace<StorageType>(m_Handle);
+	}
+
+private:
+	void SetMaster(entt::entity e) {
+		m_Handle = e;
+	};
+	static inline bool dummyVar = []() {
+		ObjectPropertyRegister::RegisterClassAsPropertyStorage<StorageType,ObjectType>();
+		return false;
+	}();
+	entt::entity m_Handle = entt::null;
+
+	friend class ObjectPropertyRegister;
+};
+
+
+
+
+template<typename Derived>
+class RegisterObjectType : public Object {
+public:
+	RegisterObjectType(entt::entity e) : Object(e) {
 		(void)dummyVariable;
 	};
 
+	static size_t GetNumberOfObjects() {
+		size_t count = 0;
+		ForEach([&](Derived derived){
+			count++;
+		});
 
+		return count;
+	}
 
 	static void ForEach(std::function<void(Derived)> function) {
 		auto resolved = entt::resolve(HelperFunctions::HashClassName<Derived>());
@@ -73,33 +107,21 @@ public:
 	static const std::vector<std::string>& GetRegisteredComponentsForType() {
 		return ObjectPropertyRegister::m_RegisteredComponentsByType[HelperFunctions::HashClassName<Derived>()];
 	};
-
-	NamedComponentHandle<DerivedComponent> AddComponentByName(std::string stringToHash) {
-		return ObjectPropertyRegister::AddComponentByName<DerivedComponent>(this->ID(), stringToHash);
-	};
-
-	NamedComponentHandle<DerivedComponent> GetComponentByName(std::string stringToHash) {
-		return ObjectPropertyRegister::GetComponentByName<DerivedComponent>(this->ID(), stringToHash);
-	};
 	
 protected:
 	
-	DerivedStorage& Storage() {
-		return Registry::Get().get_or_emplace<DerivedStorage>(ID());
-	}
+	
 
 private:
 	
 	
 	static inline int dummyVariable = []() {
 		ObjectPropertyRegister::RegisterClassAsObjectTag<ObjectTag<Derived>, Derived>();
-		ObjectPropertyRegister::RegisterClassAsPropertyStorage<DerivedStorage, Derived>();
-		
 		return 0;
 	}();
 
 
 };
 
-
 };
+

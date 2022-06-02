@@ -1,23 +1,22 @@
 #include "../include/ecspp.h"
 #include "catch2/catch_test_macros.hpp"
 
-class TestObject;
-
-template<typename T>
-class TestComponent : public ecspp::ComponentSpecifier<T,TestObject> {
-
-
-};
 
 class TestObjectProperties {
     int hello = 0;
 };
 
-class TestObject : public ecspp::TaggedObject<TestObject,TestComponent<ecspp::ComponentHelpers::Null>,TestObjectProperties> {
+class TestObject : public ecspp::RegisterObjectType<TestObject> ,
+                   public ecspp::RegisterStorage<TestObject,TestObjectProperties> {
 public:
-    TestObject(entt::entity e) : TaggedObject(e) {
+    TestObject(entt::entity e) : RegisterObjectType(e) {
 
     };
+};
+
+
+template<typename T>
+class TestComponent : public ecspp::ComponentSpecifier<T,TestObject> {
 
 
 };
@@ -58,7 +57,9 @@ TEST_CASE("Object Testing","[require]") {
         REQUIRE(RandomComponent::AliveCount() == 0);
         REQUIRE(obj.Empty());
 
+        REQUIRE(TestObject::DeleteObject(obj));
 
+        ecspp::ObjectPropertyRegister::ClearDeletingQueue();
 
     }
 
@@ -73,6 +74,10 @@ TEST_CASE("Object Testing","[require]") {
         REQUIRE(obj.GetComponent<RandomComponent>().valueTwo == 2);
 
         obj.EraseComponent<RandomComponent>();
+
+        REQUIRE(TestObject::DeleteObject(obj));
+
+        ecspp::ObjectPropertyRegister::ClearDeletingQueue();
 
     }
 
@@ -96,14 +101,54 @@ TEST_CASE("Object Testing","[require]") {
         REQUIRE(RandomComponent::AliveCount() == 0);
         REQUIRE(obj.Empty());
 
+        REQUIRE(TestObject::DeleteObject(obj));
+
+        ecspp::ObjectPropertyRegister::ClearDeletingQueue();
+
     }
 
-    REQUIRE(TestObject::DeleteObject(obj));
-
-    ecspp::ObjectPropertyRegister::ClearDeletingQueue();
+    
+    REQUIRE(TestObject::GetNumberOfObjects() == 0);
 
     
 
+
+}
+
+TEST_CASE("Parenting tests") {
+    TestObject objectOne = TestObject::CreateNew("Test One");
+    TestObject objectTwo = TestObject::CreateNew("Test Two");
+    TestObject objectThree = TestObject::CreateNew("Test Three");
+    
+    REQUIRE(!objectOne.GetParent());
+    REQUIRE(!objectTwo.GetParent());
+    REQUIRE(!objectThree.GetParent());
+
+    objectOne.SetParent(objectTwo);
+
+    REQUIRE(objectOne.GetParent().ID() == objectTwo.ID());
+    REQUIRE(objectTwo.IsInChildren(objectOne));
+
+    objectTwo.SetParent(objectThree);
+
+    REQUIRE(objectTwo.GetParent().ID() == objectThree.ID());
+    REQUIRE(objectThree.IsInChildren(objectOne));
+    REQUIRE(objectThree.IsInChildren(objectTwo));
+
+    REQUIRE(TestObject::GetNumberOfObjects() == 3);
+
+    REQUIRE(TestObject::DeleteObject(objectOne));
+    REQUIRE(TestObject::DeleteObject(objectTwo));
+    REQUIRE(TestObject::DeleteObject(objectThree));
+
+    ecspp::ObjectPropertyRegister::ClearDeletingQueue();
+
+    REQUIRE(TestObject::GetNumberOfObjects() == 0);
+
+}
+
+TEST_CASE("Different object types") {
+    
 
 }
 

@@ -22,7 +22,7 @@ protected:
 
 private:
 	static inline bool dummyVar = []() {
-		if (HelperFunctions::HashClassName<ComponentName>() != HelperFunctions::HashClassName<ComponentHelpers::Null>()) {
+		if (HelperFunctions::HashClassName<ComponentName>() != HelperFunctions::HashClassName<HelperClasses::Null>()) {
 			ObjectPropertyRegister::RegisterClassAsComponentOfType<ObjectType, ComponentName>();
 		}
 		return false;
