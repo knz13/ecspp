@@ -279,7 +279,8 @@ public:
 		return ObjectPropertyRegister::DeleteObject({obj});
 	};
 
-	static ObjectHandle CopyObject(Object objectToCopy){
+    template<typename T>
+	static ObjectHandle CopyObject(T objectToCopy){
 		return {ObjectPropertyRegister::CopyObject(objectToCopy)};
 	}
 
