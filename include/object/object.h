@@ -317,4 +317,8 @@ Object ObjectHandle::GetAsObject() {
     return Object(m_Handle);
 }
 
+bool ObjectHandle::IsType(entt::id_type id){
+    return GetAsObject().IsOfType(id);
+};
+
 };
