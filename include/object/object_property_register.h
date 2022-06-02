@@ -42,6 +42,11 @@ public:
 		return *((Type*)m_Component);
 	};
 
+	template<template<class> class Type>
+	Type<HelperClasses::Null>& GetAs() {
+		return *((Type<HelperClasses::Null>*)m_Component)
+	}
+
 	operator bool() {
 		return m_Component != nullptr;
 	};
