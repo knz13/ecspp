@@ -309,15 +309,15 @@ private:
 };
 
 
-ObjectHandle::ObjectHandle(Object obj) {
+inline ObjectHandle::ObjectHandle(Object obj) {
     m_Handle = obj.ID();
 };
 
-Object ObjectHandle::GetAsObject() {
+inline Object ObjectHandle::GetAsObject() {
     return Object(m_Handle);
 }
 
-bool ObjectHandle::IsType(entt::id_type id){
+inline bool ObjectHandle::IsType(entt::id_type id){
     return GetAsObject().IsOfType(id);
 };
 
