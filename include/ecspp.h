@@ -4,3 +4,5 @@
 #include "object/tagged_object.h"
 #include "components/component_specifier.h"
 #include "components/component.h"
+#include "components/add_only_to.h"
+#include "components/add_to_every_object.h"
