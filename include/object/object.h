@@ -63,6 +63,10 @@ public:
     }
 
 
+    void SetName(std::string name){
+        Properties().SetName(name);
+    }
+
     
 
     bool CopyComponentByName(std::string stringToHash,Object from){
