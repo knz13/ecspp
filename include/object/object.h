@@ -270,6 +270,10 @@ public:
         });
 
     }
+
+    static void ClearDeletingQueue() {
+        ObjectPropertyRegister::ClearDeletingQueue();
+    };
     
 
 protected:
