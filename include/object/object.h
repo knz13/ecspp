@@ -313,4 +313,8 @@ ObjectHandle::ObjectHandle(Object obj) {
     m_Handle = obj.ID();
 };
 
+Object ObjectHandle::GetAsObject() {
+    return Object(m_Handle);
+}
+
 };

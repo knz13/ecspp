@@ -13,7 +13,9 @@ namespace ecspp {
 
         ObjectHandle(Object obj);
 
-        ObjectHandle() {}
+        ObjectHandle() {};
+
+        Object GetAsObject();
 
         template<typename T>
         T GetAs() const {
