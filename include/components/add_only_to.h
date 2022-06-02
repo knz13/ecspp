@@ -1,5 +1,4 @@
 #pragma once
-#include "component_behavior.h"
 #include "../object/object_property_register.h"
 
 namespace ecspp {
