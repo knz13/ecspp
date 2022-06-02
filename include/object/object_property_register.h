@@ -104,13 +104,13 @@ public:
 				if (result) {
 					return ObjectHandle(*((entt::entity*)result.data()));
 				}
-				DEBUG_LOG("Create function for object with name " + objectName + " was not successful!");
+				ECSPP_DEBUG_LOG("Create function for object with name " + objectName + " was not successful!");
 				return {};
 			}
-			DEBUG_LOG("Couldn't identify create function for object, make sure it is derived from TaggedObject");
+			ECSPP_DEBUG_LOG("Couldn't identify create function for object, make sure it is derived from TaggedObject");
 			return {};
 		}
-		DEBUG_LOG("Couldn't identify object type specified, check for spelling errors...");
+		ECSPP_DEBUG_LOG("Couldn't identify object type specified, check for spelling errors...");
 		return {};
 
 	}
@@ -257,7 +257,7 @@ public:
 			m_ObjectsToDelete.push_back(obj);
 			return true;
 		}
-		DEBUG_LOG("Could not delete object with id " + obj.ToString() + " because it was not valid!");
+		ECSPP_DEBUG_LOG("Could not delete object with id " + obj.ToString() + " because it was not valid!");
 		return false;
 	}
 
@@ -273,7 +273,7 @@ public:
 
 			for (auto& objectHandle : objectAndAllChildren) {
 				if (!objectHandle) {
-					DEBUG_LOG("Could not delete object with id " + objectHandle.ToString() + " because it was not valid! During ObjectPropertyRegister::ClearDeletingQueue()");
+					ECSPP_DEBUG_LOG("Could not delete object with id " + objectHandle.ToString() + " because it was not valid! During ObjectPropertyRegister::ClearDeletingQueue()");
 					continue;
 				}
 				std::string objectType = GetObjectType(objectHandle.ID());
@@ -290,7 +290,7 @@ public:
 				}
 
 				if (!HelperFunctions::CallMetaFunction(objectType, "Destroy", objectHandle.ID())) {
-					DEBUG_LOG("Could not call destroy for object with type: " + objectType );
+					ECSPP_DEBUG_LOG("Could not call destroy for object with type: " + objectType );
 				}
 				Registry::Get().destroy(objectHandle.ID());
 			}

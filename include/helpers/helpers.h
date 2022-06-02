@@ -234,7 +234,7 @@ public:
 
         void WatchPointer(const PointerHolder<Derived>& pointer) {
             if (!std::holds_alternative<std::shared_ptr<Derived>>(pointer.m_Pointer)) {
-                DEBUG_LOG("Trying to watch a pointer that is not valid!");
+                ECSPP_DEBUG_LOG("Trying to watch a pointer that is not valid!");
                 return;
             }
             m_CurrentType = pointer.m_CurrentType;

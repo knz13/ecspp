@@ -16,7 +16,7 @@ class Object : public ObjectBase {
 public:
     Object(entt::entity ent) {
         if (!Registry::Get().valid(ent)) {
-            DEBUG_ERROR("Passing an invalid entity!!!");
+            ECSPP_DEBUG_ERROR("Passing an invalid entity!!!");
         }
         m_EntityHandle = ent;
     }
