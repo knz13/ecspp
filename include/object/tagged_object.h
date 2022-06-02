@@ -70,9 +70,7 @@ public:
 	
 	}
 
-	static bool DeleteObject(Derived derived) {
-		return ObjectPropertyRegister::DeleteObject({derived});
-	};
+	
 
 	template<typename... Args>
 	static Derived CreateNew(std::string name,Args&&... args) {

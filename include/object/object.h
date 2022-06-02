@@ -271,9 +271,19 @@ public:
 
     }
 
+    static bool DeleteObject(Object obj) {
+		return ObjectPropertyRegister::DeleteObject({obj});
+	};
+
+	static ObjectHandle CopyObject(Object objectToCopy){
+		return {ObjectPropertyRegister::CopyObject(objectToCopy)};
+	}
+
     static void ClearDeletingQueue() {
         ObjectPropertyRegister::ClearDeletingQueue();
     };
+
+    
     
 
 protected:
