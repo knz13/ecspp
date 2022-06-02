@@ -44,7 +44,7 @@ public:
 
 	template<template<class> class Type>
 	Type<HelperClasses::Null>& GetAs() {
-		return *((Type<HelperClasses::Null>*)m_Component)
+		return *((Type<HelperClasses::Null>*)m_Component);
 	}
 
 	operator bool() {
