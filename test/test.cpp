@@ -147,8 +147,3 @@ TEST_CASE("Parenting tests") {
 
 }
 
-TEST_CASE("Different object types") {
-    
-
-}
-
