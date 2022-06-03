@@ -56,6 +56,10 @@ namespace ecspp {
 		return false;
 	}
 
+	inline bool DeleteObject(entt::entity e) {
+		return DeleteObject(ObjectHandle(e));
+	}
+
 	inline std::string GetClassNameByID(entt::id_type id) {
 		return ObjectPropertyRegister::GetClassNameByID(id);
 	};
