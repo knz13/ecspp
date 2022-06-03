@@ -150,14 +150,43 @@ TEST_CASE("Parenting tests") {
 TEST_CASE("Creating object by type name") {
     ecspp::ObjectHandle obj = ecspp::CreateNewObject("TestObject", "Hi!");
 
+    REQUIRE(obj.operator bool());
+
     REQUIRE(obj.GetAsObject().GetType() == "TestObject");
 
-    REQUIRE(obj.GetAsObject().GetName() == "Hi");
+    REQUIRE(obj.GetAsObject().GetName() == "Hi!");
 
     REQUIRE(ecspp::DeleteObject(obj.GetAsObject()));
 
     ecspp::ClearDeletingQueue();
+
+    ecspp::ObjectHandle secondObj = ecspp::CreateNewObject("InvalidType", "I'm not valid :/");
+
+    REQUIRE(!secondObj);
     
 }
     
+
+TEST_CASE("Copying objects without knowing their type") {
+    ecspp::ObjectHandle firstHandle = ecspp::CreateNewObject("TestObject", "Hi!");
+
+    REQUIRE(firstHandle.operator bool());
+    
+    REQUIRE(firstHandle.GetAsObject().AddComponentByName("RandomComponent").operator bool());
+
+    REQUIRE(firstHandle.GetAsObject().GetComponentsNames().size() == 1);
+
+    REQUIRE(firstHandle.GetAsObject().HasComponent<RandomComponent>());
+
+    firstHandle.GetAsObject().GetComponent<RandomComponent>().valueOne = 3;
+
+    ecspp::ObjectHandle secondHandle = ecspp::CopyObject(firstHandle);
+
+    REQUIRE(secondHandle.operator bool());
+
+    REQUIRE(secondHandle.GetAsObject().HasComponent<RandomComponent>());
+
+    REQUIRE(secondHandle.GetAsObject().GetComponent<RandomComponent>().valueOne == 3);
+
+}
 

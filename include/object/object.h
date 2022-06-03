@@ -56,9 +56,6 @@ public:
         catch (std::runtime_error& err) {
             throw err;
         }
-        if (handle) {
-            Properties().SetComponentsNames(ObjectPropertyRegister::GetObjectComponents(m_EntityHandle));
-        }
         return *handle.GetComponentPointer();
     }
 
@@ -97,7 +94,6 @@ public:
         catch (std::runtime_error& err) {
             throw err;
         }
-        Properties().SetComponentsNames(ObjectPropertyRegister::GetObjectComponents(m_EntityHandle));
         return *handle.GetComponentPointer();
     }
 
@@ -337,5 +333,13 @@ inline Object ObjectHandle::GetAsObject() {
 inline bool ObjectHandle::IsType(entt::id_type id){
     return GetAsObject().IsOfType(id);
 };
+
+inline void ObjectPropertyRegister::RegisterComponentsNames(entt::entity e) {
+    if (!ObjectHandle(e)) {
+        return;
+    }
+
+    Object(e).Properties().SetComponentsNames(ObjectPropertyRegister::GetObjectComponents(e));
+}
 
 };

@@ -34,6 +34,13 @@ namespace ecspp {
 		return ObjectPropertyRegister::CopyObject(other);
 	};
 
+	inline ObjectHandle CopyObject(ObjectHandle other) {
+		if (!other) {
+			return {};
+		}
+		return { ObjectPropertyRegister::CopyObject<Object>(other.GetAsObject()) };
+	}
+
 	inline ObjectHandle FindObjectByName(std::string name) {
 		return ObjectPropertyRegister::FindObjectByName(name);
 	}

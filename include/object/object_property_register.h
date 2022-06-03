@@ -168,7 +168,7 @@ public:
 				firstObject = newOne.ID();
 			}
 			if (lastObject != entt::null) {
-				newOne.Properties().SetParent(T(lastObject));
+				newOne.SetParent(T(lastObject));
 			}
 			lastObject = newOne.ID();
 			});
@@ -351,6 +351,8 @@ protected:
 		return Registry().all_of<T>(e);
 	};
 
+	static void RegisterComponentsNames(entt::entity e);
+
 	template<typename T, typename... Args>
 	static bool AddComponent(entt::entity e, Args&&... args) {
 		bool value = false;
@@ -367,6 +369,8 @@ protected:
 			comp->SetMaster(e);
 			comp->Init();
 
+			RegisterComponentsNames(e);
+
 			return true;
 		}
 		else {
@@ -379,7 +383,7 @@ protected:
 		bool couldAdd = false;
 
 		try {
-			AddComponent<T>(e);
+			couldAdd = AddComponent<T>(e);
 		}
 		catch (std::runtime_error& err) {
 			throw err;
@@ -446,6 +450,7 @@ protected:
 			}
 
 		}
+
 		return { returnData };
 
 	};
