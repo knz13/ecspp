@@ -7,11 +7,8 @@
 
 namespace ecspp {
 
-    static entt::registry& Registry() {
-        static entt::registry m_Registry;
-
-        return m_Registry;
-    };
+    static entt::registry registry;
+    
 
     namespace ComponentHelpers {
         class Null {

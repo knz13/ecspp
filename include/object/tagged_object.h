@@ -24,7 +24,7 @@ public:
 	
 protected:
 	StorageType& Storage() {
-		return Registry().get_or_emplace<StorageType>(m_Handle);
+		return registry.get_or_emplace<StorageType>(m_Handle);
 	}
 
 private:

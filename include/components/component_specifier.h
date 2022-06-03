@@ -11,7 +11,7 @@ public:
 	}
 
 	static size_t AliveCount() {
-		return Registry().storage<ComponentName>().size();
+		return registry.storage<ComponentName>().size();
 	}
 
 protected:

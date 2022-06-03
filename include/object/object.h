@@ -15,7 +15,7 @@ class Component;
 class Object : public ObjectBase {
 public:
     Object(entt::entity ent) {
-        if (!Registry().valid(ent)) {
+        if (!registry.valid(ent)) {
             ECSPP_DEBUG_ERROR("Passing an invalid entity!!!");
         }
         m_EntityHandle = ent;
@@ -139,7 +139,7 @@ public:
     }
 
     bool Valid(){
-        return Registry().valid(m_EntityHandle);
+        return registry.valid(m_EntityHandle);
     }
 
     
@@ -263,7 +263,7 @@ public:
     }
 
     static void ForEach(std::function<void(Object)> func) {
-        Registry().each([&](const entt::entity e) {
+        registry.each([&](const entt::entity e) {
 
             func(Object(e));
 
@@ -299,7 +299,7 @@ protected:
     
 private:
     ObjectProperties& Properties() const{
-        return Registry().get<ObjectProperties>(m_EntityHandle);
+        return registry.get<ObjectProperties>(m_EntityHandle);
     };
 
     

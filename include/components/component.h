@@ -10,7 +10,7 @@ class Component {
 
 public:
     bool Valid() {
-        return Registry().valid(m_MasterHandle);
+        return registry.valid(m_MasterHandle);
     }
 
     
