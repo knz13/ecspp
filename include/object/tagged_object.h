@@ -77,6 +77,7 @@ public:
 		return ObjectPropertyRegister::CreateNew<Derived>(name,std::forward<Args>(args)...);
 	}
 
+
 	void ForSelfAndEachChild(std::function<void(Derived)> func) {
 		func(*((Derived*)this));
 		if (GetChildren().size() == 0) {

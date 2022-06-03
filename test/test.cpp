@@ -112,7 +112,6 @@ TEST_CASE("Object Testing","[require]") {
 
     
 
-
 }
 
 TEST_CASE("Parenting tests") {
@@ -159,6 +158,8 @@ public:
 TEST_CASE("Componentless object tests") {
     ObjectWithoutComponents obj = ObjectWithoutComponents::CreateNew("Hey");
     
+
+
 
 
 }

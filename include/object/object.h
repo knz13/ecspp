@@ -275,6 +275,19 @@ public:
 
     }
 
+    
+	void ForSelfAndEachChild(std::function<void(Object)> func) {
+		func(*this);
+		if (GetChildren().size() == 0) {
+			return;
+		}
+		for (auto id : GetChildren()) {
+			if(id){
+				id.GetAsObject().ForSelfAndEachChild(func);
+			}
+		}
+	};
+
     static bool DeleteObject(Object obj) {
 		return ObjectPropertyRegister::DeleteObject({obj});
 	};
