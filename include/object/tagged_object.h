@@ -24,7 +24,7 @@ public:
 	
 protected:
 	StorageType& Storage() {
-		return Registry::Get().get_or_emplace<StorageType>(m_Handle);
+		return Registry().get_or_emplace<StorageType>(m_Handle);
 	}
 
 private:

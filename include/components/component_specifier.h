@@ -11,7 +11,7 @@ public:
 	}
 
 	static size_t AliveCount() {
-		return Registry::Get().storage<ComponentName>().size();
+		return Registry().storage<ComponentName>().size();
 	}
 
 protected:

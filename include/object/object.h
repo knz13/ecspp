@@ -15,7 +15,7 @@ class Component;
 class Object : public ObjectBase {
 public:
     Object(entt::entity ent) {
-        if (!Registry::Get().valid(ent)) {
+        if (!Registry().valid(ent)) {
             ECSPP_DEBUG_ERROR("Passing an invalid entity!!!");
         }
         m_EntityHandle = ent;
@@ -143,7 +143,7 @@ public:
     }
 
     bool Valid(){
-        return Registry::Get().valid(m_EntityHandle);
+        return Registry().valid(m_EntityHandle);
     }
 
     
@@ -267,7 +267,7 @@ public:
     }
 
     static void ForEach(std::function<void(Object)> func) {
-        Registry::Get().each([&](const entt::entity e) {
+        Registry().each([&](const entt::entity e) {
 
             func(Object(e));
 
@@ -288,18 +288,7 @@ public:
 		}
 	};
 
-    static bool DeleteObject(Object obj) {
-		return ObjectPropertyRegister::DeleteObject({obj});
-	};
-
-    template<typename T>
-	static ObjectHandle CopyObject(T objectToCopy){
-		return {ObjectPropertyRegister::CopyObject(objectToCopy)};
-	}
-
-    static void ClearDeletingQueue() {
-        ObjectPropertyRegister::ClearDeletingQueue();
-    };
+    
 
     
     
@@ -314,7 +303,7 @@ protected:
     
 private:
     ObjectProperties& Properties() const{
-        return Registry::Get().get<ObjectProperties>(m_EntityHandle);
+        return Registry().get<ObjectProperties>(m_EntityHandle);
     };
 
     

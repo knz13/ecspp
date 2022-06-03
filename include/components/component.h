@@ -10,7 +10,7 @@ class Component {
 
 public:
     bool Valid() {
-        return Registry::Get().valid(m_MasterHandle);
+        return Registry().valid(m_MasterHandle);
     }
 
     

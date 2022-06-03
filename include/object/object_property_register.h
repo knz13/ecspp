@@ -14,6 +14,8 @@
 
 namespace ecspp {
 
+	
+
 template<typename T>
 struct NamedComponentHandle {
 public:
@@ -78,7 +80,7 @@ public:
 	template<typename Storage, typename MainClass>
 	static void RegisterClassAsPropertyStorage() {
 		m_PropertyStorageContainer[HelperFunctions::HashClassName<MainClass>()] = [](entt::entity e) {
-			Registry::Get().emplace<Storage>(e);
+			Registry().emplace<Storage>(e);
 		};
 	};
 
@@ -91,7 +93,7 @@ public:
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDestroyForObject<Attached>>(entt::hashed_string("Destroy"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
-			Registry::Get().emplace<Tag>(e);
+			Registry().emplace<Tag>(e);
 		};
 		m_RegisteredTypesByTag[entt::type_hash<Tag>().value()] = hash;
 		m_RegisteredTagsByType[hash] = entt::type_hash<Tag>().value();
@@ -174,7 +176,7 @@ public:
 	};
 
 	static ObjectHandle FindObjectByName(std::string name) {
-		for (auto [handle, comp] : Registry::Get().storage<ObjectProperties>().each()) {
+		for (auto [handle, comp] : Registry().storage<ObjectProperties>().each()) {
 			if (comp.GetName() == name) {
 				return ObjectHandle(handle);
 			}
@@ -187,7 +189,7 @@ public:
 	static T CreateNew(std::string name, Args&&... args) {
 		static_assert(std::is_base_of<Object, T>::value);
 
-		entt::entity ent = Registry::Get().create();
+		entt::entity ent = Registry().create();
 
 		int index = 1;
 		if (FindObjectByName(name)) {
@@ -201,7 +203,7 @@ public:
 			name.replace(name.find_last_of("(") + 1, std::to_string(index - 1).size(), std::to_string(index));
 		}
 
-		Registry::Get().emplace<ObjectProperties>(ent, name, HelperFunctions::HashClassName<T>(), ent);
+		Registry().emplace<ObjectProperties>(ent, name, HelperFunctions::HashClassName<T>(), ent);
 
 		ObjectPropertyRegister::InitializeObject<T, Args...>(ent, args...);
 
@@ -220,7 +222,7 @@ public:
 
 	static std::vector<std::string> GetObjectComponents(entt::entity e) {
 		std::vector<std::string> vec;
-		for (auto [id, storage] : Registry::Get().storage()) {
+		for (auto [id, storage] : Registry().storage()) {
 			if (id == entt::type_hash<ObjectProperties>().value()) {
 				continue;
 			}
@@ -253,7 +255,7 @@ public:
 	};
 
 	static void Each(std::function<void(ObjectHandle)> func) {
-		Registry::Get().each([&](entt::entity e) {
+		Registry().each([&](entt::entity e) {
 			if (ObjectHandle(e)) {
 				func(ObjectHandle(e));
 			}
@@ -300,7 +302,7 @@ public:
 				if (!HelperFunctions::CallMetaFunction(objectType, "Destroy", objectHandle.ID())) {
 					ECSPP_DEBUG_LOG("Could not call destroy for object with type: " + objectType );
 				}
-				Registry::Get().destroy(objectHandle.ID());
+				Registry().destroy(objectHandle.ID());
 			}
 
 		}
@@ -330,7 +332,7 @@ protected:
 
 
 	static bool IsHandleValid(entt::entity e) {
-		if (Registry::Get().valid(e)) {
+		if (Registry().valid(e)) {
 			return true;
 		}
 		throw std::runtime_error("Using Invalid entity!");
@@ -346,7 +348,7 @@ protected:
 			throw err;
 		}
 
-		return Registry::Get().all_of<T>(e);
+		return Registry().all_of<T>(e);
 	};
 
 	template<typename T, typename... Args>
@@ -361,7 +363,7 @@ protected:
 
 
 		if (!value) {
-			Component* comp = (Component*)&Registry::Get().emplace<T>(e, std::forward<Args>(args)...);
+			Component* comp = (Component*)&Registry().emplace<T>(e, std::forward<Args>(args)...);
 			comp->SetMaster(e);
 			comp->Init();
 
@@ -384,11 +386,11 @@ protected:
 		}
 
 		if (couldAdd) {
-			return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+			return NamedComponentHandle<T>(&Registry().get<T>(e));
 		}
 		else {
 			if (HasComponent<T>(e)) {
-				return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+				return NamedComponentHandle<T>(&Registry().get<T>(e));
 			}
 			else {
 
@@ -409,11 +411,11 @@ protected:
 		}
 
 		if (couldAdd) {
-			return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+			return NamedComponentHandle<T>(&Registry().get<T>(e));
 		}
 		else {
 			if (HasComponent<T>(e)) {
-				return NamedComponentHandle<T>(&Registry::Get().get<T>(e));
+				return NamedComponentHandle<T>(&Registry().get<T>(e));
 			}
 			else {
 
@@ -428,7 +430,7 @@ protected:
 
 	template<typename ReturnType>
 	static NamedComponentHandle<ReturnType> AddComponentByName(entt::entity e, std::string stringToHash) {
-		if (!Registry::Get().valid(e)) {
+		if (!Registry().valid(e)) {
 			return {};
 		}
 
@@ -471,7 +473,7 @@ protected:
 
 
 
-			Registry::Get().storage<T>().erase(e);
+			Registry().storage<T>().erase(e);
 			return true;
 		}
 		return false;
@@ -512,7 +514,7 @@ private:
 	}
 
 	static void ValidateAllGameObjects() {
-		Registry::Get().each([](entt::entity e) {
+		Registry().each([](entt::entity e) {
 			for (auto& compName : ObjectPropertyRegister::GetObjectComponents(e)) {
 				auto handle = ObjectPropertyRegister::GetComponentByName<Component>(e, compName);
 				if (handle) {
@@ -525,7 +527,7 @@ private:
 
 
 	static std::string GetObjectType(entt::entity e) {
-		auto wholeStorage = Registry::Get().storage();
+		auto wholeStorage = Registry().storage();
 
 		for (auto [id, storage] : wholeStorage) {
 			if (m_RegisteredTypesByTag.find(id) != m_RegisteredTypesByTag.end()) {
@@ -551,7 +553,7 @@ private:
 		}
 		vec.push_back(current);
 
-		for (auto& handle : Registry::Get().get<ObjectProperties>(current.ID()).GetChildren()) {
+		for (auto& handle : Registry().get<ObjectProperties>(current.ID()).GetChildren()) {
 			if (handle) {
 				GetAllChildren(handle, vec);
 			}
@@ -584,7 +586,7 @@ private:
 	static T DuplicateObject(T other) {
 		T obj = ObjectPropertyRegister::CreateNew<T>(other.Properties().GetName());
 
-		for (auto [id, storage] : Registry::Get().storage()) {
+		for (auto [id, storage] : Registry().storage()) {
 			if (id == entt::type_hash<ObjectProperties>().value() || id == ObjectPropertyRegister::m_RegisteredTagsByType[HelperFunctions::HashClassName<T>()]) {
 				continue;
 			}
@@ -603,7 +605,7 @@ private:
 
 	template<typename Tag,typename Attached>
 	static void ForEachByTag(std::function<void(Attached)> func) {
-		auto view = Registry::Get().view<Tag>();
+		auto view = Registry().view<Tag>();
 		for (auto entity : view) {
 			func(Attached(entity));
 		}
@@ -650,12 +652,14 @@ public:
 		if (isNull) {
 			return false;
 		}
-		return Registry::Get().valid(m_Handle) && ObjectPropertyRegister::IsTypeOfObject<T>();
+		return Registry().valid(m_Handle) && ObjectPropertyRegister::IsTypeOfObject<T>();
 	};
 
 private:
 	entt::entity m_Handle = entt::null;
 	bool isNull = false;
 };
+
+
 
 };

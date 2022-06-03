@@ -57,7 +57,7 @@ TEST_CASE("Object Testing","[require]") {
         REQUIRE(RandomComponent::AliveCount() == 0);
         REQUIRE(obj.Empty());
 
-        REQUIRE(TestObject::DeleteObject(obj));
+        REQUIRE(ecspp::DeleteObject(obj));
 
         ecspp::ObjectPropertyRegister::ClearDeletingQueue();
 
@@ -75,7 +75,7 @@ TEST_CASE("Object Testing","[require]") {
 
         obj.EraseComponent<RandomComponent>();
 
-        REQUIRE(TestObject::DeleteObject(obj));
+        REQUIRE(ecspp::DeleteObject(obj));
 
         ecspp::ObjectPropertyRegister::ClearDeletingQueue();
 
@@ -101,7 +101,7 @@ TEST_CASE("Object Testing","[require]") {
         REQUIRE(RandomComponent::AliveCount() == 0);
         REQUIRE(obj.Empty());
 
-        REQUIRE(TestObject::DeleteObject(obj));
+        REQUIRE(ecspp::DeleteObject(obj));
 
         ecspp::ObjectPropertyRegister::ClearDeletingQueue();
 
@@ -136,11 +136,11 @@ TEST_CASE("Parenting tests") {
 
     REQUIRE(TestObject::GetNumberOfObjects() == 3);
 
-    REQUIRE(TestObject::DeleteObject(objectOne));
-    REQUIRE(TestObject::DeleteObject(objectTwo));
-    REQUIRE(TestObject::DeleteObject(objectThree));
+    REQUIRE(ecspp::DeleteObject(objectOne));
+    REQUIRE(ecspp::DeleteObject(objectTwo));
+    REQUIRE(ecspp::DeleteObject(objectThree));
 
-    ecspp::ObjectPropertyRegister::ClearDeletingQueue();
+    ecspp::ClearDeletingQueue();
 
     REQUIRE(TestObject::GetNumberOfObjects() == 0);
 

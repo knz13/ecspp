@@ -28,7 +28,7 @@ namespace ecspp {
             if (isNull) {
                 return false;
             }
-            return Registry::Get().valid(m_Handle);
+            return Registry().valid(m_Handle);
         };
 
         entt::entity ID() const {

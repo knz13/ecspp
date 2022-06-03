@@ -7,6 +7,12 @@
 
 namespace ecspp {
 
+    static entt::registry& Registry() {
+        static entt::registry m_Registry;
+
+        return m_Registry;
+    };
+
     namespace ComponentHelpers {
         class Null {
 
@@ -17,34 +23,5 @@ namespace ecspp {
     }
 
 
-    class Object;
-    class ObjectHandle;
-    class Registry {
-    public:
-
-
-
-
-
-        static entt::registry& Get() {
-            return m_Registry;
-        }
-        static size_t GenerateRandomNumber() {
-            return m_RandomGenerator();
-        };
-
-
-
-
-    private:
-
-
-
-
-        static inline std::mt19937 m_RandomGenerator = std::mt19937(time(nullptr));
-
-        static inline entt::registry m_Registry;
-
-    };
-
+    
 };

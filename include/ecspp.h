@@ -6,3 +6,39 @@
 #include "components/component.h"
 #include "components/add_only_to.h"
 #include "components/add_to_every_object.h"
+
+namespace ecspp {
+	inline void ClearDeletingQueue() {
+		ObjectPropertyRegister::ClearDeletingQueue();
+	};
+
+	inline ObjectHandle CreateNewObject(std::string name) {
+		return ObjectPropertyRegister::CreateNew<Object>(name);
+	}
+
+
+	inline ObjectHandle CreateNewObject(std::string type, std::string name) {
+		return ObjectPropertyRegister::CreateObjectFromType(type, name);
+	}
+
+	inline void ForEachObject(std::function<void(ObjectHandle)> func) {
+		ObjectPropertyRegister::Each(func);
+	};
+
+	inline std::vector<std::string> GetObjectComponents(Object obj) {
+		return ObjectPropertyRegister::GetObjectComponents(obj.ID());
+	}
+
+	template<typename T>
+	inline T CopyObject(T other) {
+		return ObjectPropertyRegister::CopyObject(other);
+	};
+
+	inline ObjectHandle FindObjectByName(std::string name) {
+		return ObjectPropertyRegister::FindObjectByName(name);
+	}
+
+	inline bool DeleteObject(Object obj) {
+		return ObjectPropertyRegister::DeleteObject(obj);
+	};
+};
