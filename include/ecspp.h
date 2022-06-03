@@ -41,4 +41,18 @@ namespace ecspp {
 	inline bool DeleteObject(Object obj) {
 		return ObjectPropertyRegister::DeleteObject(obj);
 	};
+
+	inline std::string GetClassNameByID(entt::id_type id) {
+		return ObjectPropertyRegister::GetClassNameByID(id);
+	};
+
+	inline bool IsClassRegistered(std::string className) {
+		return ObjectPropertyRegister::IsClassRegistered(className);
+	}
+
+	template<typename... Args>
+	inline entt::meta_any CallMetaFunction(std::string className, std::string funcName, Args&&... args) {
+		return HelperFunctions::CallMetaFunction(className, funcName, std::forward(args)...);
+	}
+
 };
