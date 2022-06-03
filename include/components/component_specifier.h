@@ -11,11 +11,11 @@ public:
 	}
 
 	static size_t AliveCount() {
-		return registry.storage<ComponentName>().size();
+		return Registry().storage<ComponentName>().size();
 	}
 
 	static void ForEach(std::function<void(ComponentName&)> func) {
-		auto view = registry.view<ComponentName>();
+		auto view = Registry().view<ComponentName>();
 		for (auto entity : view) {
 			func(view.get<ComponentName>(entity));
 		}
