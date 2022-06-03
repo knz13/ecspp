@@ -3,13 +3,14 @@
 
 
 class TestObjectProperties {
+public:
     int hello = 0;
 };
 
 class TestObject : public ecspp::RegisterObjectType<TestObject> ,
                    public ecspp::RegisterStorage<TestObject,TestObjectProperties> {
 public:
-    TestObject(entt::entity e) : RegisterObjectType(e) {
+    TestObject(entt::entity e) : RegisterObjectType(e),RegisterStorage(e) {
 
     };
 };
@@ -190,3 +191,8 @@ TEST_CASE("Copying objects without knowing their type") {
 
 }
 
+TEST_CASE("Testing Storage") {
+    TestObject obj = TestObject::CreateNew("Hi!");
+
+    REQUIRE(obj.Storage().hello == 0);
+}

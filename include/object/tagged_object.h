@@ -18,7 +18,7 @@ private:
 template<class ObjectType,class StorageType>
 class RegisterStorage {
 public:
-	RegisterStorage() {
+	RegisterStorage(entt::entity e) : m_Handle(e) {
 
 	};
 	
