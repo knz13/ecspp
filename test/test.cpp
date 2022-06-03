@@ -147,20 +147,17 @@ TEST_CASE("Parenting tests") {
 }
 
 
-struct ObjectWithoutComponents : public ecspp::RegisterComponentlessObjectType<ObjectWithoutComponents> {
-public:
-    ObjectWithoutComponents(entt::entity e) : RegisterComponentlessObjectType(e) {
+TEST_CASE("Creating object by type name") {
+    ecspp::ObjectHandle obj = ecspp::CreateNewObject("TestObject", "Hi!");
 
-    }
-};
+    REQUIRE(obj.GetAsObject().GetType() == "TestObject");
 
+    REQUIRE(obj.GetAsObject().GetName() == "Hi");
 
-TEST_CASE("Componentless object tests") {
-    ObjectWithoutComponents obj = ObjectWithoutComponents::CreateNew("Hey");
+    REQUIRE(ecspp::DeleteObject(obj.GetAsObject()));
+
+    ecspp::ClearDeletingQueue();
     
-
-
-
-
 }
+    
 
