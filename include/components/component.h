@@ -20,6 +20,8 @@ protected:
         return *this;
 
     }
+    
+
     /**
      * Use instead of constructor.
      */

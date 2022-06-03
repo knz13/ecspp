@@ -14,11 +14,17 @@ public:
 		return registry.storage<ComponentName>().size();
 	}
 
-protected:
+	void ForEach(std::function<void(ComponentName&)> func) {
+		auto view = registry.view<ComponentName>();
+		for (auto entity : view) {
+			func(view.get<ComponentName>(entity));
+		}
+	}
 
 	NamedObjectHandle<ObjectType> GetMasterObject() const {
 		return NamedObjectHandle<ObjectType>(Component::m_MasterHandle);
 	};
+
 
 private:
 	static inline bool dummyVar = []() {
