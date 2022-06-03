@@ -7,7 +7,7 @@
 
 namespace ecspp {
 
-    static entt::registry registry;
+    entt::registry registry;
     
 
     namespace ComponentHelpers {

@@ -14,7 +14,7 @@ public:
 		return registry.storage<ComponentName>().size();
 	}
 
-	void ForEach(std::function<void(ComponentName&)> func) {
+	static void ForEach(std::function<void(ComponentName&)> func) {
 		auto view = registry.view<ComponentName>();
 		for (auto entity : view) {
 			func(view.get<ComponentName>(entity));
