@@ -192,6 +192,7 @@ private:
 class HelperClasses {
 public:
     class Null {
+    
     private:
         int dummy = 0;
     };

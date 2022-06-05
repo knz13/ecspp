@@ -334,6 +334,12 @@ inline bool ObjectHandle::IsType(entt::id_type id){
     return GetAsObject().IsOfType(id);
 };
 
+template<template<class Something> class T>
+inline T<Object> ObjectHandle::GetAs() const{
+    static_assert(std::is_base_of<Object, T<Object>>::value, "Class is not derived from object!");
+    return { m_Handle };
+}
+
 inline void ObjectPropertyRegister::RegisterComponentsNames(entt::entity e) {
     if (!ObjectHandle(e)) {
         return;

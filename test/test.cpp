@@ -199,6 +199,10 @@ TEST_CASE("Testing Storage") {
     TestObject obj = TestObject::CreateNew("Hi!");
     
     REQUIRE(obj.GetStorage().hello == 0);
+
+    ecspp::DeleteObject(obj);
+
+    ecspp::ClearDeletingQueue();
 }
 
 TEST_CASE("Many Objects") {
@@ -223,6 +227,29 @@ TEST_CASE("Many Objects") {
     ecspp::ClearDeletingQueue();
 
     REQUIRE(TestObject::GetNumberOfObjects() == 0);
+
+
+}
+
+template<typename Derived>
+struct TestTemplatedDerived : public ecspp::RegisterObjectType<Derived> {
+public:
+    TestTemplatedDerived(entt::entity e) : ecspp::RegisterObjectType<Derived>(e) {};
+
+    bool TestMethod() { return true; };
+};
+
+struct FinalDerived : public TestTemplatedDerived<FinalDerived> {
+public:
+    FinalDerived(entt::entity e) : TestTemplatedDerived<FinalDerived>(e) {};
+
+};
+
+
+TEST_CASE("Getting templated derived object") {
+    FinalDerived obj = FinalDerived::CreateNew("Hi!");
+
+    REQUIRE(ecspp::ObjectHandle(obj).GetAs<TestTemplatedDerived>().TestMethod());
 
 
 }

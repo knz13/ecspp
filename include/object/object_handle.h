@@ -25,9 +25,7 @@ namespace ecspp {
         }
 
         template<template<class Something> class T>
-        T<HelperClasses::Null> GetAs() const {
-            return { m_Handle };
-        }
+        T<Object> GetAs() const;
 
         operator bool() const {
             if (isNull) {
