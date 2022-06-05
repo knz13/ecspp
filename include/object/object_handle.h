@@ -24,6 +24,11 @@ namespace ecspp {
             return T(m_Handle);
         }
 
+        template<template<class Something> class T>
+        T<HelperClasses::Null> GetAs() const {
+            return { m_Handle };
+        }
+
         operator bool() const {
             if (isNull) {
                 return false;

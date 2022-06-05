@@ -13,6 +13,10 @@ public:
     TestObject(entt::entity e) : RegisterObjectType(e),RegisterStorage(e) {
 
     };
+
+    TestObjectProperties& GetStorage() {
+        return Storage();
+    }
 };
 
 
@@ -193,6 +197,32 @@ TEST_CASE("Copying objects without knowing their type") {
 
 TEST_CASE("Testing Storage") {
     TestObject obj = TestObject::CreateNew("Hi!");
+    
+    REQUIRE(obj.GetStorage().hello == 0);
+}
 
-    REQUIRE(obj.Storage().hello == 0);
+TEST_CASE("Many Objects") {
+
+    std::vector<TestObject> objects;
+
+    for (int i = 0; i < 100; i++) {
+        objects.push_back(TestObject::CreateNew("Object!"));
+    }
+
+    REQUIRE(TestObject::GetNumberOfObjects() == 100);
+
+    for (auto& obj : objects) {
+        obj.AddComponent<RandomComponent>();
+        REQUIRE(obj.GetComponentsNames().size() == 1);
+    }
+
+    for (auto& obj : objects) {
+        ecspp::DeleteObject(obj);
+    }
+
+    ecspp::ClearDeletingQueue();
+
+    REQUIRE(TestObject::GetNumberOfObjects() == 0);
+
+
 }

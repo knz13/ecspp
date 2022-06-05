@@ -18,7 +18,6 @@ protected:
     
     Component& operator=(const Component& comp){
         return *this;
-
     }
     
 
