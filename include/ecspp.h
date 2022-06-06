@@ -73,4 +73,13 @@ namespace ecspp {
 		return HelperFunctions::CallMetaFunction(className, funcName, std::forward(args)...);
 	}
 
+	inline void DeleteAllObjects() {
+		Object::ForEach([](Object obj) {
+			ecspp::DeleteObject(obj);
+			});
+
+
+		ClearDeletingQueue();
+	};
+
 };

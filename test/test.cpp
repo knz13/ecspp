@@ -37,6 +37,9 @@ struct RandomComponent : public TestComponent<RandomComponent> {
 
 
 TEST_CASE("Object Testing","[require]") {
+
+    ecspp::DeleteAllObjects();
+
     TestObject obj = TestObject::CreateNew("I'm an object!");
 
     REQUIRE(obj.Valid());
@@ -89,6 +92,8 @@ TEST_CASE("Object Testing","[require]") {
     }
 
     SECTION("Adding and Removing components by name") {
+
+
         REQUIRE(RandomComponent::AliveCount() == 0);
 
         obj.AddComponentByName("RandomComponent");
@@ -110,7 +115,7 @@ TEST_CASE("Object Testing","[require]") {
 
         REQUIRE(ecspp::DeleteObject(obj));
 
-        ecspp::ObjectPropertyRegister::ClearDeletingQueue();
+        ecspp::ClearDeletingQueue();
 
     }
 
@@ -122,6 +127,9 @@ TEST_CASE("Object Testing","[require]") {
 }
 
 TEST_CASE("Parenting tests") {
+
+    ecspp::DeleteAllObjects();
+
     TestObject objectOne = TestObject::CreateNew("Test One");
     TestObject objectTwo = TestObject::CreateNew("Test Two");
     TestObject objectThree = TestObject::CreateNew("Test Three");
@@ -155,6 +163,9 @@ TEST_CASE("Parenting tests") {
 
 
 TEST_CASE("Creating object by type name") {
+
+    ecspp::DeleteAllObjects();
+
     ecspp::ObjectHandle obj = ecspp::CreateNewObject("TestObject", "Hi!");
 
     REQUIRE(obj.operator bool());
@@ -175,6 +186,9 @@ TEST_CASE("Creating object by type name") {
     
 
 TEST_CASE("Copying objects without knowing their type") {
+
+    ecspp::DeleteAllObjects();
+
     ecspp::ObjectHandle firstHandle = ecspp::CreateNewObject("TestObject", "Hi!");
 
     REQUIRE(firstHandle.operator bool());
@@ -198,20 +212,21 @@ TEST_CASE("Copying objects without knowing their type") {
 }
 
 TEST_CASE("Testing Storage") {
+    ecspp::DeleteAllObjects();
+
     TestObject obj = TestObject::CreateNew("Hi!");
     
     REQUIRE(obj.GetStorage().hello == 0);
 
-    ecspp::DeleteObject(obj);
-
-    ecspp::ClearDeletingQueue();
 }
 
 TEST_CASE("Many Objects") {
 
+    ecspp::DeleteAllObjects();
+
     std::vector<TestObject> objects;
 
-    for (int i = 0; i < 99; i++) {
+    for (int i = 0; i < 100; i++) {
         objects.push_back(TestObject::CreateNew("Object!"));
     }
 
@@ -264,7 +279,7 @@ TEST_CASE("Getting templated derived object") {
 TEST_CASE("Calling virtual function from base") {
     FinalDerived obj = FinalDerived::CreateNew("Hi!");
 
-    REQUIRE(ecspp::ObjectHandle(obj).GetAs<TestTemplatedDerived>().CallVirtualFunction<&FinalDerived::TestVirtualMethod>("e") == true);
+    REQUIRE(ecspp::ObjectHandle(obj).GetAs<ecspp::Object>().CallVirtualFunction<&FinalDerived::TestVirtualMethod>("e") == true);
     
     
 };
