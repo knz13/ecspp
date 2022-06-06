@@ -255,14 +255,15 @@ public:
 
     bool TestMethod() { return true; };
 
-    virtual bool TestVirtualMethod(std::string e) { return false; };
+    virtual float TestVirtualMethod(std::string e) { return 2; };
+    virtual void TestVoidVirtualMethod() {};
 };
 
 struct FinalDerived : public TestTemplatedDerived<FinalDerived> {
 public:
     FinalDerived(entt::entity e) : TestTemplatedDerived<FinalDerived>(e) {};
 
-    bool TestVirtualMethod(std::string e) override { return true; };
+    float TestVirtualMethod(std::string e) override { return 10; };
 };
 
 
@@ -279,7 +280,11 @@ TEST_CASE("Getting templated derived object") {
 TEST_CASE("Calling virtual function from base") {
     FinalDerived obj = FinalDerived::CreateNew("Hi!");
 
-    REQUIRE(ecspp::ObjectHandle(obj).GetAs<ecspp::Object>().CallVirtualFunction<&FinalDerived::TestVirtualMethod>("e") == true);
+    ecspp::Object middleObj(obj);
+
+    REQUIRE(middleObj.CallVirtualFunction<&TestTemplatedDerived<ecspp::Object>::TestVirtualMethod>("e") == 10);
+
+    middleObj.CallVirtualFunction<&FinalDerived::TestVoidVirtualMethod>();
     
     
 };
