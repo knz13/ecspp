@@ -17,6 +17,8 @@ public:
     TestObjectProperties& GetStorage() {
         return Storage();
     }
+
+    
 };
 
 
@@ -209,7 +211,7 @@ TEST_CASE("Many Objects") {
 
     std::vector<TestObject> objects;
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 99; i++) {
         objects.push_back(TestObject::CreateNew("Object!"));
     }
 
@@ -237,12 +239,15 @@ public:
     TestTemplatedDerived(entt::entity e) : ecspp::RegisterObjectType<Derived>(e) {};
 
     bool TestMethod() { return true; };
+
+    virtual bool TestVirtualMethod(std::string e) { return false; };
 };
 
 struct FinalDerived : public TestTemplatedDerived<FinalDerived> {
 public:
     FinalDerived(entt::entity e) : TestTemplatedDerived<FinalDerived>(e) {};
 
+    bool TestVirtualMethod(std::string e) override { return true; };
 };
 
 
@@ -251,5 +256,15 @@ TEST_CASE("Getting templated derived object") {
 
     REQUIRE(ecspp::ObjectHandle(obj).GetAs<TestTemplatedDerived>().TestMethod());
 
+    ecspp::DeleteObject(obj);
 
+    ecspp::ClearDeletingQueue();
 }
+
+TEST_CASE("Calling virtual function from base") {
+    FinalDerived obj = FinalDerived::CreateNew("Hi!");
+
+    REQUIRE(ecspp::ObjectHandle(obj).GetAs<TestTemplatedDerived>().CallVirtualFunction<&FinalDerived::TestVirtualMethod>("e") == true);
+    
+    
+};

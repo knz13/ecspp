@@ -92,6 +92,7 @@ public:
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::ForEachByTag<Tag, Attached>>(entt::hashed_string("ForEach"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CreateObjectAndReturnHandle<Attached>>(entt::hashed_string("Create"));
 		entt::meta<Attached>().type(hash).template func<&ObjectPropertyRegister::CallDestroyForObject<Attached>>(entt::hashed_string("Destroy"));
+		entt::meta<Attached>().type(hash).template func<& ObjectPropertyRegister::CallVirtualFunc<Attached>>(entt::hashed_string("CallVirtualFunc"));
 		m_RegisteredObjectTagsStartingFuncs[hash] = [](entt::entity e) {
 			Registry().emplace<Tag>(e);
 		};
@@ -101,6 +102,9 @@ public:
 
 
 	}
+
+	template<typename T>
+	static constexpr auto CallVirtualFunc(entt::entity e, std::function<entt::meta_any(Object*)> func);
 
 	static ObjectHandle CreateObjectFromType(std::string type, std::string objectName) {
 		auto resolved = entt::resolve(entt::hashed_string(type.c_str()));
@@ -114,7 +118,7 @@ public:
 				ECSPP_DEBUG_LOG("Create function for object with name " + objectName + " was not successful!");
 				return {};
 			}
-			ECSPP_DEBUG_LOG("Couldn't identify create function for object, make sure it is derived from TaggedObject");
+			ECSPP_DEBUG_LOG("Couldn't identify create function for object, make sure it is derived from RegisterObjectType or RegisterComponentlessObjectType");
 			return {};
 		}
 		ECSPP_DEBUG_LOG("Couldn't identify object type specified, check for spelling errors...");
@@ -141,8 +145,8 @@ public:
 
 		((ObjectBase*)(&obj))->Init();
 
-		
-		
+
+
 		if (m_ComponentsToMakeAvailableAtStartByType.find(hash) != m_ComponentsToMakeAvailableAtStartByType.end()) {
 			for (auto& componentName : m_ComponentsToMakeAvailableAtStartByType[hash]) {
 				AddComponentByName<Component>(obj.ID(), componentName);
@@ -152,7 +156,7 @@ public:
 		for (auto& componentName : m_ComponentsToMakeOmnipresent) {
 			AddComponentByName<Component>(obj.ID(), componentName);
 		}
-		
+
 
 
 	}
@@ -300,7 +304,7 @@ public:
 				}
 
 				if (!HelperFunctions::CallMetaFunction(objectType, "Destroy", objectHandle.ID())) {
-					ECSPP_DEBUG_LOG("Could not call destroy for object with type: " + objectType );
+					ECSPP_DEBUG_LOG("Could not call destroy for object with type: " + objectType);
 				}
 				Registry().destroy(objectHandle.ID());
 			}
@@ -565,8 +569,8 @@ private:
 		}
 	}
 
-	
-	
+
+
 
 	template<typename T>
 	static T& CreateComponent(entt::entity e) {
@@ -577,15 +581,18 @@ private:
 	template<typename T>
 	static entt::id_type RegisterClassAsComponent() {
 		entt::id_type hash = HelperFunctions::HashClassName<T>();
-		entt::meta<T>().type(hash).template ctor<&CreateComponent<T>,entt::as_ref_t>();
+		entt::meta<T>().type(hash).template ctor<&CreateComponent<T>, entt::as_ref_t>();
 		entt::meta<T>().type(hash).template func<&CopyComponent<T>>(entt::hashed_string("Copy Component"));
 		entt::meta<T>().type(hash).template func<&EraseComponent<T>>(entt::hashed_string("Erase Component"));
 		entt::meta<T>().type(hash).template func<&HasComponent<T>>(entt::hashed_string("Has Component"));
-		
-		
+
+
 
 		return hash;
 	}
+
+	
+
 
 	template<typename T>
 	static T DuplicateObject(T other) {

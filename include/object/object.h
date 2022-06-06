@@ -4,6 +4,7 @@
 #include "object_property_register.h"
 #include "object_base.h"
 #include "object_handle.h"
+#include <type_traits>
 
 namespace ecspp {
 
@@ -46,6 +47,41 @@ public:
         }
 
     }
+
+private:
+    template<auto Func>
+    struct VirtualFuncSpecializer {};
+
+    template<typename Obj,typename ReturnType,typename... Args,ReturnType(Obj::*funcPointer)(Args...)>
+    struct VirtualFuncSpecializer<funcPointer> {
+        constexpr auto Call(Object object,Args&&... args) {
+            entt::meta_any any = HelperFunctions::CallMetaFunction(object.GetType(), "CallVirtualFunc", object.ID(), std::function([&](Object* obj) -> entt::meta_any {
+                    return (((Obj*)obj)->*funcPointer)(std::forward<Args>(args)...);
+            }));
+
+
+            if constexpr (std::is_same<ReturnType, void>::value) {
+                return;
+            }
+            else {
+                if (any.operator bool()) {
+                    return *static_cast<ReturnType*>(( * static_cast<entt::meta_any*>(any.data())).data());
+                }
+                else {
+                    throw std::runtime_error("Could not call method with virtual func!");
+                }
+            }
+        };
+
+    };
+
+public:
+
+    template<auto Func,typename... Args>
+    constexpr auto CallVirtualFunction(Args&&... args) {
+        return VirtualFuncSpecializer<Func>().Call(*this,std::forward<Args...>(args)...);
+    };
+    
 
     template<typename T>
     T& GetComponent() {
@@ -346,6 +382,13 @@ inline void ObjectPropertyRegister::RegisterComponentsNames(entt::entity e) {
     }
 
     Object(e).Properties().SetComponentsNames(ObjectPropertyRegister::GetObjectComponents(e));
+}
+
+template<typename T>
+inline constexpr auto ObjectPropertyRegister::CallVirtualFunc(entt::entity e, std::function<entt::meta_any(Object*)> func) {
+    T obj(e);
+
+    return func(&obj);
 }
 
 };
