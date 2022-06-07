@@ -256,7 +256,11 @@ public:
     bool TestMethod() { return true; };
 
     virtual float TestVirtualMethod(std::string e) { return 2; };
-    virtual void TestVoidVirtualMethod() {};
+    virtual void TestVoidVirtualMethod(int* ptr) {
+        if (ptr) {
+            *ptr = 2;
+        }
+    };
 };
 
 struct FinalDerived : public TestTemplatedDerived<FinalDerived> {
@@ -264,6 +268,11 @@ public:
     FinalDerived(entt::entity e) : TestTemplatedDerived<FinalDerived>(e) {};
 
     float TestVirtualMethod(std::string e) override { return 10; };
+    void TestVoidVirtualMethod(int* ptr) {
+        if (ptr) {
+            *ptr = 3;
+        }
+    };
 };
 
 
@@ -284,7 +293,10 @@ TEST_CASE("Calling virtual function from base") {
 
     REQUIRE(middleObj.CallVirtualFunction<&TestTemplatedDerived<ecspp::Object>::TestVirtualMethod>("e") == 10);
 
-    middleObj.CallVirtualFunction<&FinalDerived::TestVoidVirtualMethod>();
+    int val = 1;
+    middleObj.CallVirtualFunction<&FinalDerived::TestVoidVirtualMethod>(&val);
+
+    REQUIRE(val == 3);
     
     
 };

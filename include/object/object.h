@@ -55,10 +55,10 @@ private:
     template<typename Obj,typename ReturnType,typename... Args,ReturnType(Obj::*funcPointer)(Args...)>
     struct VirtualFuncSpecializer<funcPointer> {
         constexpr auto Call(Object object,Args&&... args) {
-            entt::meta_any any = HelperFunctions::CallMetaFunction(object.GetType(), "CallVirtualFunc", object.ID(), std::function([&](Object* obj) {
+            entt::meta_any any = HelperFunctions::CallMetaFunction(object.GetType(), "CallVirtualFunc", object.ID(), std::function([&](Object* obj) -> entt::meta_any {           
                 if constexpr (std::is_same<ReturnType, void>::value) {
                     (((Obj*)obj)->*funcPointer)(std::forward<Args>(args)...);
-                    return;
+                    return {};
                 }
                 else {
                     return entt::meta_any((((Obj*)obj)->*funcPointer)(std::forward<Args>(args)...));
