@@ -13,6 +13,7 @@ public:
         return Registry().valid(m_MasterHandle);
     }
 
+
     
 protected:
     
@@ -37,7 +38,7 @@ protected:
 
     
 
-    
+    friend class Object;
 
 
 private:

@@ -24,11 +24,17 @@ public:
 
 template<typename T>
 class TestComponent : public ecspp::ComponentSpecifier<T,TestObject> {
+public:
+    virtual int TestVirtualFunc() { return 1; };
 
-
+private:
+    int variable = 2;
+    int variableTwo = 4;
 };
 
 struct RandomComponent : public TestComponent<RandomComponent> {
+public:
+    int TestVirtualFunc() override { return 2; };
 
     int valueOne = 1;
     int valueTwo = 2;
@@ -300,3 +306,17 @@ TEST_CASE("Calling virtual function from base") {
     
     
 };
+
+TEST_CASE("Getting components names and calling base function") {
+    FinalDerived obj = FinalDerived::CreateNew("Hi");
+
+    obj.AddComponent<RandomComponent>();
+
+    for (auto& compName : obj.GetComponentsNames()) {
+        if (auto comp = obj.GetComponentByName(compName); comp) {
+            REQUIRE(comp.GetAs<TestComponent>().TestVirtualFunc() == 2);
+        }
+    }
+
+
+}

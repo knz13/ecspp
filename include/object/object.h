@@ -87,6 +87,13 @@ public:
     constexpr auto CallVirtualFunction(Args&&... args) {
         return VirtualFuncSpecializer<Func>().Call(*this,std::forward<Args...>(args)...);
     };
+
+    void Update(float deltaTime) {
+        for (auto& name : GetComponentsNames()) {
+            GetComponentByName(name).Get().Update(deltaTime);
+        }
+
+    };
     
 
     template<typename T>
