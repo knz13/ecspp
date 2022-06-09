@@ -21,6 +21,17 @@ public:
     
 };
 
+class OtherOtherClass {
+public:
+    void PublicMethod() {};
+    void OtherPublicMethod() {};
+};
+
+class OtherClass {
+private:
+    bool trueVal = true;
+    bool falseVal = false;
+};
 
 template<typename T>
 class TestComponent : public ecspp::ComponentSpecifier<T,TestObject> {
@@ -32,7 +43,7 @@ private:
     int variableTwo = 4;
 };
 
-struct RandomComponent : public TestComponent<RandomComponent> {
+struct RandomComponent : public TestComponent<RandomComponent>,public OtherClass,public OtherOtherClass  {
 public:
     int TestVirtualFunc() override { return 2; };
 
