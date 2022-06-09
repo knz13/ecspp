@@ -50,7 +50,7 @@ public:
 	}
 
 	operator bool() {
-		return m_Component != nullptr;
+		return m_Component != nullptr && ((Component*)m_Component)->Valid();
 	};
 
 private:
