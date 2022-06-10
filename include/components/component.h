@@ -9,15 +9,15 @@ namespace ecspp {
 class Component {
 
 public:
-    bool Valid() {
+    bool Valid() const {
         return Registry().valid(m_MasterHandle);
     }
 
-    virtual std::string GetTypeName() {
+    virtual std::string GetTypeName() const {
         return HelperFunctions::GetClassName<Component>();
     }
 
-    entt::entity GetMasterHandle() {
+    entt::entity GetMasterHandle() const {
         return m_MasterHandle;
     }
 
@@ -27,6 +27,7 @@ protected:
     
     Component& operator=(const Component& comp){
         return *this;
+
     }
     
 

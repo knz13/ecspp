@@ -395,7 +395,7 @@ inline void ObjectPropertyRegister::UpdateComponent(entt::entity e, float deltaT
     if (!ObjectHandle(e)) {
         return;
     }
-    Object(e).GetComponent<T>().Update(deltaTime);
+    dynamic_cast<Component*>(&Object(e).GetComponent<T>())->Update(deltaTime);
 
 }
 

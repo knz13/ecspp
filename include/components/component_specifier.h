@@ -27,7 +27,7 @@ public:
 	}
 
 	ObjectHandle GetMasterObject() const {
-		return { Component::m_MasterHandle };
+		return { this->GetMasterHandle()};
 	};
 
 private:
