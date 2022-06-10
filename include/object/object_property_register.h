@@ -447,7 +447,7 @@ protected:
 	template<typename T>
 	static bool EraseComponent(entt::entity e) {
 		if (HasComponent<T>(e)) {
-			GetComponent<T>(e)->Destroy();
+			dynamic_cast<Component*>(GetComponent<T>(e))->Destroy();
 
 			Registry().storage<T>().erase(e);
 			return true;
