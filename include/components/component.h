@@ -42,7 +42,7 @@ protected:
     virtual void Update(float delta) {};
     
 
-    void SetType(entt::id_type type) { m_MyType == type; };
+    void SetType(entt::id_type type) { m_MyType = type; };
     
 
     friend class Object;

@@ -322,6 +322,17 @@ TEST_CASE("Calling virtual function from base") {
     
 };
 
+TEST_CASE("Getting component by name and casting to common base") {
+    FinalDerived obj = FinalDerived::CreateNew("Hi");
+
+    auto handle = obj.AddComponentByName("RandomComponent");
+    REQUIRE(handle);
+    REQUIRE(handle.Get());
+    REQUIRE(handle.Get()->Valid());
+    REQUIRE(handle.GetAs<TestComponent>());
+    REQUIRE(!handle.GetAs<OtherClass>());
+}
+
 TEST_CASE("Getting components names and calling base function") {
 
     for (int i = 0; i < 100; i++) {
@@ -339,7 +350,7 @@ TEST_CASE("Getting components names and calling base function") {
             if (comp) {
                 TestComponent* compCasted = comp.GetAs<TestComponent>();
                 ecspp::Component* compCastedToBase = comp.Get();
-                REQUIRE(compCasted);
+                REQUIRE((compCasted && compCastedToBase));
                 if (compName == "OtherTestComponent") {
                     
                     REQUIRE(compCasted->TestVirtualFunc() == 1);
