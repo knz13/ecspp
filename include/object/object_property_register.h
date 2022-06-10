@@ -37,14 +37,13 @@ public:
 			return nullptr;
 		}
 
-		return (Component*)any.data();
+		return *(Component**)any.data();
 	};
 
 	template<typename Type>
-	Type* GetAs() {
-		return static_cast<Type*>(Get());
-	};
+	Type* GetAs();
 
+	
 
 	operator bool() {
 		return Registry().valid(m_MasterID) && (Registry().storage(HelperFunctions::GetClassHash(m_ComponentType)) != Registry().storage().end());
@@ -222,6 +221,7 @@ public:
 	static void RegisterClassAsComponentOfType() {
 		m_RegisteredComponentsByType[m_RegisteredComponentByObjectType[HelperFunctions::HashClassName<ComponentType>()]].push_back(HelperFunctions::GetClassName<Component>());
 		RegisterClassAsComponent<Component>();
+		entt::meta<Component>().type(HelperFunctions::HashClassName<Component>()).template func<&CastComponentTo<Component,ComponentType>>(entt::hashed_string(("Cast To "+ HelperFunctions::GetClassName<ComponentType>()).c_str()));
 		m_RegisteredComponentsNames[entt::type_hash<Component>().value()] = HelperFunctions::GetClassName<Component>();
 	};
 
@@ -581,6 +581,9 @@ private:
 
 		return obj;
 	};
+
+	template<typename MainComponentType, typename FinalType>
+	static FinalType* CastComponentTo(entt::entity e);
 
 	template<typename T>
 	static Component* CastComponentToCommonBase(entt::entity e);

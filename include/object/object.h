@@ -405,6 +405,31 @@ inline Component* ObjectPropertyRegister::CastComponentToCommonBase(entt::entity
         return nullptr;
     }
 
-    return dynamic_cast<Component*>(&Object(e).GetComponent<T>());
+    return (Component*) & Object(e).GetComponent<T>();
 }
+
+template<typename MainComponentType, typename FinalType>
+inline FinalType* ObjectPropertyRegister::CastComponentTo(entt::entity e) {
+    if (!ObjectHandle(e)) {
+        return nullptr;
+    }
+
+    return (FinalType*) & Object(e).GetComponent<MainComponentType>();
+
+}   
+
+template<typename Type>
+inline Type* ComponentHandle::GetAs() {
+
+    if (HelperFunctions::HashClassName<Type>() == m_ComponentType) {
+        return &Object(m_MasterID).GetComponent<Type>();
+    }
+
+    if (auto result = HelperFunctions::CallMetaFunction(m_ComponentType, "Cast To " + HelperFunctions::GetClassName<Type>(), m_MasterID); result) {
+        Type* address = *(Type**)result.data();
+        return address;
+    }
+    return nullptr;
+};
+
 };

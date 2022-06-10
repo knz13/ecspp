@@ -337,11 +337,15 @@ TEST_CASE("Getting components names and calling base function") {
             auto comp = obj.GetComponentByName(compName);
             REQUIRE(comp);
             if (comp) {
+                TestComponent* compCasted = comp.GetAs<TestComponent>();
+                ecspp::Component* compCastedToBase = comp.Get();
+                REQUIRE(compCasted);
                 if (compName == "OtherTestComponent") {
-                    REQUIRE(comp.GetAs<TestComponent>()->TestVirtualFunc() == 1);
+                    
+                    REQUIRE(compCasted->TestVirtualFunc() == 1);
                 }
                 else {
-                    REQUIRE(comp.GetAs<TestComponent>()->TestVirtualFunc() == 2);
+                    REQUIRE(compCasted->TestVirtualFunc() == 2);
                 }
             }
         }
