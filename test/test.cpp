@@ -2,13 +2,23 @@
 #include "catch2/catch_test_macros.hpp"
 
 
+class TestComponent : public ecspp::Component {
+public:
+    virtual int TestVirtualFunc() { return 1; };
+
+private:
+    int variable = 2;
+    int variableTwo = 4;
+};
 class TestObjectProperties {
 public:
     int hello = 0;
 };
 
 class TestObject : public ecspp::RegisterObjectType<TestObject> ,
-                   public ecspp::RegisterStorage<TestObject,TestObjectProperties> {
+                   public ecspp::RegisterStorage<TestObject,TestObjectProperties>,
+                   public ecspp::RegisterComponent<TestObject,TestComponent>
+{
 public:
     TestObject(entt::entity e) : RegisterObjectType(e),RegisterStorage(e) {
 
@@ -33,17 +43,9 @@ private:
     bool falseVal = false;
 };
 
-template<typename T>
-class TestComponent : public ecspp::ComponentSpecifier<T,TestObject> {
-public:
-    virtual int TestVirtualFunc() { return 1; };
 
-private:
-    int variable = 2;
-    int variableTwo = 4;
-};
 
-struct RandomComponent : public TestComponent<RandomComponent>,public OtherClass,public OtherOtherClass  {
+struct RandomComponent : public ecspp::DefineComponent<RandomComponent,TestComponent>,public OtherClass,public OtherOtherClass  {
 public:
     int TestVirtualFunc() override { return 2; };
 
@@ -79,7 +81,7 @@ TEST_CASE("Object Testing","[require]") {
         REQUIRE(RandomComponent::AliveCount() == 1);
         REQUIRE(obj.GetComponentsNames()[0] == "RandomComponent");
 
-        obj.EraseComponent<RandomComponent>();
+        REQUIRE(obj.EraseComponent<RandomComponent>());
 
         REQUIRE(RandomComponent::AliveCount() == 0);
         REQUIRE(obj.Empty());
@@ -119,7 +121,7 @@ TEST_CASE("Object Testing","[require]") {
         REQUIRE(obj.GetComponentByName("RandomComponent").operator bool());
 
         
-        RandomComponent& component = obj.GetComponentByName("RandomComponent").GetAs<RandomComponent>();
+        RandomComponent& component = *obj.GetComponentByName("RandomComponent").GetAs<RandomComponent>();
 
         component.valueOne = 2;
 
@@ -137,8 +139,6 @@ TEST_CASE("Object Testing","[require]") {
     }
 
     
-    REQUIRE(TestObject::GetNumberOfObjects() == 0);
-
     
 
 }
@@ -293,6 +293,10 @@ public:
 };
 
 
+struct OtherTestComponent : public ecspp::DefineComponent<OtherTestComponent,TestComponent> {
+
+};
+
 TEST_CASE("Getting templated derived object") {
     FinalDerived obj = FinalDerived::CreateNew("Hi!");
 
@@ -319,15 +323,29 @@ TEST_CASE("Calling virtual function from base") {
 };
 
 TEST_CASE("Getting components names and calling base function") {
-    FinalDerived obj = FinalDerived::CreateNew("Hi");
 
-    obj.AddComponent<RandomComponent>();
+    for (int i = 0; i < 100; i++) {
+        FinalDerived obj = FinalDerived::CreateNew("Hi");
 
-    for (auto& compName : obj.GetComponentsNames()) {
-        if (auto comp = obj.GetComponentByName(compName); comp) {
-            REQUIRE(comp.GetAs<TestComponent>().TestVirtualFunc() == 2);
+        obj.AddComponent<RandomComponent>();
+        if (i % 2 == 0) {
+            obj.AddComponent<OtherTestComponent>();
         }
     }
+    FinalDerived::ForEach([](FinalDerived obj) {
+        for (auto& compName : obj.GetComponentsNames()) {
+            auto comp = obj.GetComponentByName(compName);
+            REQUIRE(comp);
+            if (comp) {
+                if (compName == "OtherTestComponent") {
+                    REQUIRE(comp.GetAs<TestComponent>()->TestVirtualFunc() == 1);
+                }
+                else {
+                    REQUIRE(comp.GetAs<TestComponent>()->TestVirtualFunc() == 2);
+                }
+            }
+        }
+        });
 
 
 }

@@ -11,51 +11,48 @@
 #include "../global.h"
 
 
-
 namespace ecspp {
 
 	
 
-template<typename T>
-struct NamedComponentHandle {
+struct ComponentHandle {
 public:
 
-	NamedComponentHandle() {
+	ComponentHandle() {
 
 	};
 
-	NamedComponentHandle(T* comp)
+	ComponentHandle(entt::entity e,entt::id_type type)
 	{
-		m_Component = comp;
+		m_MasterID = e;
+		m_ComponentType = type;
+
 	};
 
+	Component* Get() {
+		auto any = HelperFunctions::CallMetaFunction(m_ComponentType,"Cast To Base",m_MasterID);
 
-	
-	T* GetComponentPointer() {
-		return m_Component;
-	}
+		if (!any) {
+			ECSPP_DEBUG_LOG("Calling Get() without valid master id or component id");
+			return nullptr;
+		}
 
-	Component& Get() {
-		return *m_Component;
+		return (Component*)any.data();
 	};
 
 	template<typename Type>
-	Type& GetAs() {
-		return *((Type*)m_Component);
+	Type* GetAs() {
+		return static_cast<Type*>(Get());
 	};
 
-	template<template<class> class Type>
-	Type<HelperClasses::Null>& GetAs() {
-		return *((Type<HelperClasses::Null>*)m_Component);
-	}
 
 	operator bool() {
-		return m_Component != nullptr && ((Component*)m_Component)->Valid();
+		return Registry().valid(m_MasterID) && (Registry().storage(HelperFunctions::GetClassHash(m_ComponentType)) != Registry().storage().end());
 	};
 
 private:
-	T* m_Component = nullptr;
-
+	entt::entity m_MasterID = entt::null;
+	entt::id_type m_ComponentType = entt::null;
 
 };
 
@@ -84,6 +81,10 @@ public:
 		};
 	};
 
+	template<typename ObjectType,typename ComponentType>
+	static void RegisterComponentBaseAsDerivingFromObject() {
+		m_RegisteredComponentByObjectType[HelperFunctions::HashClassName<ComponentType>()] = HelperFunctions::HashClassName<ObjectType>();
+	};
 
 
 	template<typename Tag, typename Attached>
@@ -149,12 +150,12 @@ public:
 
 		if (m_ComponentsToMakeAvailableAtStartByType.find(hash) != m_ComponentsToMakeAvailableAtStartByType.end()) {
 			for (auto& componentName : m_ComponentsToMakeAvailableAtStartByType[hash]) {
-				AddComponentByName<Component>(obj.ID(), componentName);
+				AddComponentByName(obj.ID(), componentName);
 			}
 		}
 
 		for (auto& componentName : m_ComponentsToMakeOmnipresent) {
-			AddComponentByName<Component>(obj.ID(), componentName);
+			AddComponentByName(obj.ID(), componentName);
 		}
 
 
@@ -217,9 +218,9 @@ public:
 
 
 
-	template<typename ComponentType, typename Component>
+	template<typename Component, typename ComponentType>
 	static void RegisterClassAsComponentOfType() {
-		m_RegisteredComponentsByType[HelperFunctions::HashClassName<ComponentType>()].push_back(HelperFunctions::GetClassName<Component>());
+		m_RegisteredComponentsByType[m_RegisteredComponentByObjectType[HelperFunctions::HashClassName<ComponentType>()]].push_back(HelperFunctions::GetClassName<Component>());
 		RegisterClassAsComponent<Component>();
 		m_RegisteredComponentsNames[entt::type_hash<Component>().value()] = HelperFunctions::GetClassName<Component>();
 	};
@@ -233,6 +234,7 @@ public:
 
 			std::string objectType = GetObjectType(e);
 
+			entt::id_type objectHash = entt::hashed_string(objectType.c_str());
 			if (std::find(m_RegisteredComponentsByType[entt::hashed_string(objectType.c_str())].begin(), m_RegisteredComponentsByType[entt::hashed_string(objectType.c_str())].end(), ObjectPropertyRegister::GetComponentNameByID(id)) == m_RegisteredComponentsByType[entt::hashed_string(objectType.c_str())].end()) {
 				continue;
 			}
@@ -345,142 +347,107 @@ protected:
 
 	template<typename T>
 	static bool HasComponent(entt::entity e) {
-		try {
-			IsHandleValid(e);
+		
+		if (!IsHandleValid(e)) {
+			return false;
 		}
-		catch (std::runtime_error& err) {
-			throw err;
-		}
-
+		
 		return Registry().all_of<T>(e);
 	};
 
 	static void RegisterComponentsNames(entt::entity e);
 
 	template<typename T, typename... Args>
-	static bool AddComponent(entt::entity e, Args&&... args) {
-		bool value = false;
-		try {
-			value = HasComponent<T>(e);
-		}
-		catch (std::runtime_error& err) {
-			throw err;
+	static T* AddComponent(entt::entity e, Args&&... args) {
+
+		if (!IsHandleValid(e)) {
+			ECSPP_DEBUG_LOG("Handle was not valid during add component!");
+			return nullptr;
 		}
 
-
-		if (!value) {
-			Component* comp = (Component*)&Registry().emplace<T>(e, std::forward<Args>(args)...);
-			comp->SetMaster(e);
-			comp->Init();
-
-			RegisterComponentsNames(e);
-
-			return true;
+		if (HasComponent<T>(e)) {
+			return &Registry().get<T>(e);
 		}
-		else {
-			return false;
-		}
+
+		Component* comp = (Component*)&Registry().emplace<T>(e, std::forward<Args>(args)...);
+		comp->SetMaster(e);
+		comp->Init();
+
+		RegisterComponentsNames(e);
+
+		return &Registry().get<T>(e);;
+		
 	}
 
 	template<typename T>
-	static NamedComponentHandle<T> GetComponent(entt::entity e) {
-		bool couldAdd = false;
-
-		try {
-			couldAdd = AddComponent<T>(e);
-		}
-		catch (std::runtime_error& err) {
-			throw err;
+	static T* GetComponent(entt::entity e) {
+		if (!IsHandleValid(e)) {
+			return nullptr;
 		}
 
-		if (couldAdd) {
-			return NamedComponentHandle<T>(&Registry().get<T>(e));
+		if (AddComponent<T>(e)) {
+			return &Registry().get<T>(e);
 		}
 		else {
 			if (HasComponent<T>(e)) {
-				return NamedComponentHandle<T>(&Registry().get<T>(e));
+				return &Registry().get<T>(e);;
 			}
 			else {
-
-				return NamedComponentHandle<T>(nullptr);
+				return nullptr;
 			}
 		}
 	};
 
 	template<typename T, typename... Args>
-	static NamedComponentHandle<T> GetComponentWithArgs(entt::entity e, Args&&... args) {
-		bool couldAdd = false;
+	static T* GetComponentWithArgs(entt::entity e, Args&&... args) {
 
-		try {
-			AddComponent<T, Args...>(e, std::forward<Args>(args)...);
-		}
-		catch (std::runtime_error& err) {
-			throw err;
-		}
-
-		if (couldAdd) {
-			return NamedComponentHandle<T>(&Registry().get<T>(e));
+		if (AddComponent<T, Args...>(e, std::forward<Args>(args)...)) {
+			return &Registry().get<T>(e);
 		}
 		else {
 			if (HasComponent<T>(e)) {
-				return NamedComponentHandle<T>(&Registry().get<T>(e));
+				return &Registry().get<T>(e);;
 			}
 			else {
 
-				return NamedComponentHandle<T>(nullptr);
+				return {};
 			}
 		}
 	};
+	
 
-
-
-
-
-	template<typename ReturnType>
-	static NamedComponentHandle<ReturnType> AddComponentByName(entt::entity e, std::string stringToHash) {
+	static ComponentHandle AddComponentByName(entt::entity e, std::string stringToHash) {
 		if (!Registry().valid(e)) {
 			return {};
 		}
 
 		auto resolved = entt::resolve(entt::hashed_string(stringToHash.c_str()));
-		ReturnType* returnData = nullptr;
+		void* returnData = nullptr;
 		if (resolved) {
-			entt::meta_any owner = resolved.construct(e);
+			if (auto func = resolved.func(entt::hashed_string("Create Component")); func) {
 
-			returnData = (ReturnType*)owner.data();
+				entt::meta_any owner = func.invoke({}, e);
+				returnData = owner.data();
 
-			if (returnData == nullptr) {
-				throw std::runtime_error("Couldn't add component of type: " + stringToHash);
+				if (owner.data() == nullptr) {
+					ECSPP_DEBUG_LOG("Could not construct component of type " + stringToHash);
+				}
 			}
-
 		}
 
-		return { returnData };
+		return ComponentHandle(e, entt::hashed_string(stringToHash.c_str()));
 
 	};
 
-	template<typename ReturnType>
-	static NamedComponentHandle<ReturnType> GetComponentByName(entt::entity e, std::string name) {
-		NamedComponentHandle<ReturnType> comp;
-
-		try {
-			comp = AddComponentByName<ReturnType>(e, name);
-		}
-		catch (std::runtime_error& err) {
-			throw err;
-		}
-
-		return comp;
+	
+	static ComponentHandle GetComponentByName(entt::entity e, std::string name) {
+		return AddComponentByName(e, name);
 	};
 
 	template<typename T>
 	static bool EraseComponent(entt::entity e) {
-
 		if (HasComponent<T>(e)) {
-			T* comp = GetComponent<T>(e).GetComponentPointer();
-			((Component*)comp)->Destroy();
-
-
+			GetComponent<T>(e)->Destroy();
 
 			Registry().storage<T>().erase(e);
 			return true;
@@ -491,8 +458,8 @@ protected:
 	template<typename T>
 	static bool CopyComponent(entt::entity first, entt::entity second) {
 		if (HasComponent<T>(first) && HasComponent<T>(second)) {
-			T& firstComp = *GetComponent<T>(first).GetComponentPointer();
-			T& secondComp = *GetComponent<T>(second).GetComponentPointer();
+			T& firstComp = *GetComponent<T>(first);
+			T& secondComp = *GetComponent<T>(second);
 			secondComp = firstComp;
 			return true;
 		}
@@ -525,9 +492,9 @@ private:
 	static void ValidateAllGameObjects() {
 		Registry().each([](entt::entity e) {
 			for (auto& compName : ObjectPropertyRegister::GetObjectComponents(e)) {
-				auto handle = ObjectPropertyRegister::GetComponentByName<Component>(e, compName);
+				auto handle = ObjectPropertyRegister::GetComponentByName(e, compName);
 				if (handle) {
-					Component& comp = handle.Get();
+					Component& comp = *handle.Get();
 					comp.SetMaster(e);
 				}
 			}
@@ -547,13 +514,9 @@ private:
 
 		return "";
 
-
-
 	};
 
-
-
-
+	
 
 
 	static void GetAllChildren(ObjectHandle current, std::vector<ObjectHandle>& vec) {
@@ -573,15 +536,19 @@ private:
 
 
 	template<typename T>
-	static T& CreateComponent(entt::entity e) {
-		NamedComponentHandle<T> handle = GetComponent<T>(e);
-		return *handle.GetComponentPointer();
+	static T* CreateComponent(entt::entity e) {
+		return GetComponent<T>(e);
 	};
+
+	template<typename T>
+	static void UpdateComponent(entt::entity e, float deltaTime);
 
 	template<typename T>
 	static entt::id_type RegisterClassAsComponent() {
 		entt::id_type hash = HelperFunctions::HashClassName<T>();
-		entt::meta<T>().type(hash).template ctor<&CreateComponent<T>, entt::as_ref_t>();
+		entt::meta<T>().type(hash).template func<&CreateComponent<T>>(entt::hashed_string("Create Component"));
+		entt::meta<T>().type(hash).template func<&CastComponentToCommonBase<T>>(entt::hashed_string("Cast To Base"));
+		entt::meta<T>().type(hash).template func<&UpdateComponent<T>>(entt::hashed_string("Update Component"));
 		entt::meta<T>().type(hash).template func<&CopyComponent<T>>(entt::hashed_string("Copy Component"));
 		entt::meta<T>().type(hash).template func<&EraseComponent<T>>(entt::hashed_string("Erase Component"));
 		entt::meta<T>().type(hash).template func<&HasComponent<T>>(entt::hashed_string("Has Component"));
@@ -615,6 +582,9 @@ private:
 		return obj;
 	};
 
+	template<typename T>
+	static Component* CastComponentToCommonBase(entt::entity e);
+
 	template<typename Tag,typename Attached>
 	static void ForEachByTag(std::function<void(Attached)> func) {
 		auto view = Registry().view<Tag>();
@@ -634,6 +604,7 @@ private:
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_ComponentsToMakeAvailableAtStartByType;
 	inline static std::unordered_map<entt::id_type, std::function<void(entt::entity)>> m_RegisteredObjectTagsStartingFuncs;
 	inline static std::unordered_map<entt::id_type, std::vector<std::string>> m_RegisteredComponentsByType;
+	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredComponentByObjectType;
 	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredTagsByType;
 	inline static std::unordered_map<entt::id_type, entt::id_type> m_RegisteredTypesByTag;
 	inline static std::unordered_map<std::string, entt::id_type> m_RegisteredTagsByName;

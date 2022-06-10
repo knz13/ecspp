@@ -4,7 +4,6 @@
 
 
 
-
 namespace ecspp {    
 
 class HelperFunctions {
@@ -79,23 +78,43 @@ public:
 
     template<typename T>
     static std::string GetClassName() {
+
         std::string name = std::string(entt::type_id<T>().name());
         HelperFunctions::EraseWordFromString(name, "class ");
         HelperFunctions::EraseWordFromString(name, "struct ");
         if (auto loc = name.find_last_of(':'); loc != std::string::npos) {
             name = std::string(name.begin() + loc + 1, name.end());
         }
+        
+        
         return name;
     }
 
    
-
+    
     
 
     template<typename T>
     static entt::id_type HashClassName() {
-        return entt::hashed_string(GetClassName<T>().c_str());
+        entt::id_type hash = entt::hashed_string(GetClassName<T>().c_str());
+        if (m_ClassHashPerNameHash.find(hash) == m_ClassHashPerNameHash.end()) {
+            m_ClassHashPerNameHash[hash] = entt::type_id<T>().hash();
+        }
+        return hash;
     }
+
+    static entt::id_type GetClassHash(entt::id_type nameHash) {
+        if (m_ClassHashPerNameHash.find(nameHash) != m_ClassHashPerNameHash.end()) {
+            return m_ClassHashPerNameHash[nameHash];
+        }
+        return {};
+    }
+
+    
+    
+private:
+    static inline std::unordered_map<entt::id_type, entt::id_type> m_ClassHashPerNameHash;
+public:
 
     template<typename... Args>
     static entt::meta_any CallMetaFunction(std::string handle, std::string funcName,Args&&... args) {
@@ -109,6 +128,21 @@ public:
         }
         return {};
     }
+
+    template<typename... Args>
+    static entt::meta_any CallMetaFunction(entt::id_type handle, std::string funcName, Args&&... args) {
+        auto resolved = entt::resolve(handle);
+
+        if (resolved) {
+            if (auto func = resolved.func(entt::hashed_string(funcName.c_str())); func) {
+                return func.invoke({}, std::forward<Args>(args)...);
+            }
+            return {};
+        }
+        return {};
+    }
+
+
 
     static bool IsMetaClass(std::string className) {
         return entt::resolve(entt::hashed_string(className.c_str())).operator bool();

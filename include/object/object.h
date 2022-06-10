@@ -90,22 +90,14 @@ public:
 
     void Update(float deltaTime) {
         for (auto& name : GetComponentsNames()) {
-            GetComponentByName(name).Get().Update(deltaTime);
+            HelperFunctions::CallMetaFunction(name,"Update Component",this->ID(),deltaTime);
         }
-
     };
     
 
     template<typename T>
     T& GetComponent() {
-        NamedComponentHandle<T> handle(nullptr);
-        try {
-            handle = ObjectPropertyRegister::GetComponent<T>(m_EntityHandle);
-        }
-        catch (std::runtime_error& err) {
-            throw err;
-        }
-        return *handle.GetComponentPointer();
+        return *ObjectPropertyRegister::GetComponent<T>(m_EntityHandle);
     }
 
 
@@ -136,33 +128,27 @@ public:
 
     template<typename T,typename ...Args>
     T& AddComponent(Args&&... args){
-        NamedComponentHandle<T> handle(nullptr);
-        try {
-            handle = ObjectPropertyRegister::GetComponent<T, Args...>(m_EntityHandle, std::forward<Args>(args)...);
-        }
-        catch (std::runtime_error& err) {
-            throw err;
-        }
-        return *handle.GetComponentPointer();
+        return *ObjectPropertyRegister::GetComponent<T, Args...>(m_EntityHandle, std::forward<Args>(args)...);
     }
 
   
-    NamedComponentHandle<Component> AddComponentByName(std::string stringToHash) {
-		return {ObjectPropertyRegister::AddComponentByName<Component>(this->ID(), stringToHash)};
+    ComponentHandle AddComponentByName(std::string stringToHash) {
+        return { ObjectPropertyRegister::AddComponentByName(this->ID(), stringToHash) };
+    };
+
+    ComponentHandle GetComponentByName(std::string stringToHash) {
+        return { ObjectPropertyRegister::GetComponentByName(this->ID(), stringToHash) };
 	};
 
-	NamedComponentHandle<Component> GetComponentByName(std::string stringToHash) {
-		return {ObjectPropertyRegister::GetComponentByName<Component>(this->ID(), stringToHash)};
-	};
-
+	
 
 
     template<typename T>
-    void EraseComponent(){
-        ObjectPropertyRegister::EraseComponent<T>(m_EntityHandle);
+    bool EraseComponent(){
+        bool val = ObjectPropertyRegister::EraseComponent<T>(m_EntityHandle);
         Properties().SetComponentsNames(ObjectPropertyRegister::GetObjectComponents(m_EntityHandle));
       
-        
+        return val;
     };
 
     bool EraseComponentByName(std::string componentName){
@@ -282,9 +268,9 @@ public:
         return Properties().GetComponentsNames();
     }
 
-    void ForEachComponent(std::function<void(NamedComponentHandle<Component>&)> func) {
+    void ForEachComponent(std::function<void(ComponentHandle&)> func) {
         for (auto& componentName : GetComponentsNames()) {
-            NamedComponentHandle<Component> comp = ObjectPropertyRegister::GetComponentByName<Component>(this->ID(), componentName);
+            ComponentHandle comp = ObjectPropertyRegister::GetComponentByName(this->ID(), componentName);
             if (comp) {
                 func(comp);
             }
@@ -404,4 +390,21 @@ inline constexpr auto ObjectPropertyRegister::CallVirtualFunc(entt::entity e, st
     return func(&obj);
 }
 
+template<typename T>
+inline void ObjectPropertyRegister::UpdateComponent(entt::entity e, float deltaTime) {
+    if (!ObjectHandle(e)) {
+        return;
+    }
+    Object(e).GetComponent<T>().Update(deltaTime);
+
+}
+
+template<typename T>
+inline Component* ObjectPropertyRegister::CastComponentToCommonBase(entt::entity e) {
+    if (!ObjectHandle(e)) {
+        return nullptr;
+    }
+
+    return dynamic_cast<Component*>(&Object(e).GetComponent<T>());
+}
 };

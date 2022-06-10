@@ -3,10 +3,15 @@
 
 namespace ecspp {
 
-template<typename ComponentName,typename ObjectType>
-class ComponentSpecifier : public Component {
+template<typename ComponentName,typename ComponentType>
+class DefineComponent : public ComponentType {
 public:
-	std::string GetTypeName() {
+	DefineComponent() {
+		(void)dummyVar;
+		Component::SetType(HelperFunctions::HashClassName<ComponentName>());
+	};
+	
+	std::string GetTypeName() override {
 		return HelperFunctions::GetClassName<ComponentName>();
 	}
 
@@ -21,20 +26,34 @@ public:
 		}
 	}
 
-	NamedObjectHandle<ObjectType> GetMasterObject() const {
-		return NamedObjectHandle<ObjectType>(Component::m_MasterHandle);
+	ObjectHandle GetMasterObject() const {
+		return { Component::m_MasterHandle };
 	};
 
-
 private:
+	using Component::SetType;
 	static inline bool dummyVar = []() {
-		if (HelperFunctions::HashClassName<ComponentName>() != HelperFunctions::HashClassName<HelperClasses::Null>()) {
-			ObjectPropertyRegister::RegisterClassAsComponentOfType<ObjectType, ComponentName>();
-		}
-		return false;
+		ObjectPropertyRegister::RegisterClassAsComponentOfType<ComponentName, ComponentType>();
+		return true;
 	}();
 
 
+};
+
+template<typename ObjectType,typename ComponentType>
+class RegisterComponent {
+public:
+	RegisterComponent() {
+		(void)dummyVar;
+	};
+
+private:
+	static inline bool dummyVar = []() {
+		if constexpr (!std::is_same<ComponentType, HelperClasses::Null>::value) {
+			ObjectPropertyRegister::RegisterComponentBaseAsDerivingFromObject<ObjectType, ComponentType>();
+		}
+		return false;
+	}();
 };
 
 };

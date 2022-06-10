@@ -13,7 +13,15 @@ public:
         return Registry().valid(m_MasterHandle);
     }
 
+    virtual std::string GetTypeName() {
+        return HelperFunctions::GetClassName<Component>();
+    }
 
+    entt::entity GetMasterHandle() {
+        return m_MasterHandle;
+    }
+
+    virtual ~Component(){}
     
 protected:
     
@@ -34,8 +42,7 @@ protected:
     virtual void Update(float delta) {};
     
 
-    ~Component(){}
-
+    void SetType(entt::id_type type) { m_MyType == type; };
     
 
     friend class Object;
@@ -47,7 +54,7 @@ private:
         m_MasterHandle = entity;
     };
     
-    
+    entt::id_type m_MyType = entt::null;
     entt::entity m_MasterHandle = entt::null;
     
     
