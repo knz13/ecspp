@@ -11,7 +11,7 @@ public:
 		Component::SetType(HelperFunctions::HashClassName<ComponentName>());
 	};
 	
-	std::string GetTypeName() override {
+	std::string GetTypeName() {
 		return HelperFunctions::GetClassName<ComponentName>();
 	}
 
@@ -22,7 +22,7 @@ public:
 	static void ForEach(std::function<void(ComponentName&)> func) {
 		auto view = Registry().view<ComponentName>();
 		for (auto entity : view) {
-			func(view.get<ComponentName>(entity));
+			func(view.template get<ComponentName>(entity));
 		}
 	}
 

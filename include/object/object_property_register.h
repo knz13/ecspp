@@ -104,7 +104,7 @@ public:
 	}
 
 	template<typename T>
-	static constexpr auto CallVirtualFunc(entt::entity e, std::function<entt::meta_any(Object*)> func);
+	static auto CallVirtualFunc(entt::entity e, std::function<entt::meta_any(Object*)> func);
 
 	static ObjectHandle CreateObjectFromType(std::string type, std::string objectName) {
 		auto resolved = entt::resolve(entt::hashed_string(type.c_str()));
