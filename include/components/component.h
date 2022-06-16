@@ -43,13 +43,13 @@ protected:
     virtual void Update(float delta) {};
     
 
-    void SetType(entt::id_type type) { m_MyType = type; };
     
 
     friend class Object;
 
 
 private:
+    void SetType(entt::id_type type) { m_MyType = type; };
 
     void SetMaster(entt::entity entity) {
         m_MasterHandle = entity;
@@ -60,10 +60,12 @@ private:
     
     
     
+    
+
     friend class Window;
     
     template<typename,typename>
-    friend class ComponentSpecifier;
+    friend class DefineComponent;
     
     
     friend class ObjectPropertyRegister;

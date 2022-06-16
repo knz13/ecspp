@@ -31,7 +31,6 @@ public:
 	};
 
 private:
-	using Component::SetType;
 	static inline bool dummyVar = []() {
 		ObjectPropertyRegister::RegisterClassAsComponentOfType<ComponentName, ComponentType>();
 		return true;
