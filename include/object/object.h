@@ -432,4 +432,9 @@ inline Type* ComponentHandle::GetAs() {
     return nullptr;
 };
 
+template<typename T>
+inline bool ObjectHandle::IsType() {
+    return GetAsObject().IsOfType<T>();
+};
+
 };

@@ -20,6 +20,9 @@ namespace ecspp {
         bool IsType(entt::id_type type);
 
         template<typename T>
+        bool IsType();
+
+        template<typename T>
         T GetAs() const {
             return T(m_Handle);
         }

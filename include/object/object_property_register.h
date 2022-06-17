@@ -43,7 +43,14 @@ public:
 	template<typename Type>
 	Type* GetAs();
 
-	
+	bool IsType(entt::id_type id){
+		return id == m_ComponentType;
+	}
+
+	template<typename T>
+	bool IsType() {
+		return m_ComponentType == HelperFunctions::HashClassName<T>();
+	};
 
 	operator bool() {
 		return Registry().valid(m_MasterID) && (Registry().storage(HelperFunctions::GetClassHash(m_ComponentType)) != Registry().storage().end());
