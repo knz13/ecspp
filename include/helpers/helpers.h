@@ -263,16 +263,15 @@ public:
             
         };
 
-        template<typename T>
-        
-        T& HoldType() {
+        template<typename T,typename... Args>
+        T& HoldType(Args&&... args) {
             auto deleter = [](Derived* ptr) {
                 delete ((T*)ptr);
             };
 
             static_assert(std::is_base_of<Derived, T>::value);
             m_CurrentType = HelperFunctions::GetClassName<T>();
-            m_Pointer = std::shared_ptr<Derived>(new T(), deleter);
+            m_Pointer = std::shared_ptr<Derived>(new T(std::forward<Args>(args)...), deleter);
             return *((T*)std::get< std::shared_ptr<Derived>>(m_Pointer).get());
         }
 
