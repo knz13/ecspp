@@ -47,11 +47,14 @@ public:
 	};
 
 private:
-	static inline bool dummyVar = []() {
+	static inline auto dummyVar = []() {
 		if constexpr (!std::is_same<ComponentType, HelperClasses::Null>::value) {
 			ObjectPropertyRegister::RegisterComponentBaseAsDerivingFromObject<ObjectType, ComponentType>();
+			return 1;
 		}
-		return false;
+		else {
+			return false;
+		}
 	}();
 };
 
