@@ -197,9 +197,12 @@ private:
     
 };
 
+
+
 template<typename T>
-class Meta {
+class MetaFactory {
 public:
+
 
     template<auto Func>
     bool RegisterFunc(std::string funcMetaName) {
@@ -222,6 +225,13 @@ private:
     entt::id_type hash = HelperFunctions::HashClassName<T>();
 
 };
+
+
+template<typename T>
+auto meta() {
+    return MetaFactory<T>();
+}
+
 
 class HelperClasses {
 public:
