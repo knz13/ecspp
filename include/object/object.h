@@ -223,6 +223,7 @@ public:
     void ClearParent() {
         if (Properties().m_Parent) {
             Properties().m_Parent.GetAs<Object>().Properties().RemoveChildren(this->Properties());
+            Properties().m_Parent = ObjectHandle();
         }
     }
 
