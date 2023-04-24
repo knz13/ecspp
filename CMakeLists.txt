@@ -33,11 +33,15 @@ include(GNUInstallDirs)
 include(ExternalProject)
 include(FetchContent)
 
+option(ECSPP_RUN_TESTS "Run tests" OFF)
+
 
 #project name
 project("ecspp_project")
 
 #adding subdirectories...
 
-add_subdirectory(test)
+if(ECSPP_RUN_TESTS)
 
+    add_subdirectory(test)
+endif()
