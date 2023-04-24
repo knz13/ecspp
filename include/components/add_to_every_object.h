@@ -8,7 +8,7 @@ template<typename T>
 class AddToEveryObject {
 public:
     AddToEveryObject(){
-        (void*)m_DummyVar;
+        (void)m_DummyVar;
     };
 
 private:
